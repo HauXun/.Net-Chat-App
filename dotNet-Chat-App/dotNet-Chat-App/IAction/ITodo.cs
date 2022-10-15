@@ -7,11 +7,9 @@ using System.Threading.Tasks;
 
 namespace dotNet_Chat_App.IAction
 {
-    public interface IActions
+    public interface ITodo
     {
-        void Close();
-        void Listen();
-        void Worker(object token = null);
-        void WaitForHandle(object token = null);
+        void HandleAction(DoActions actions);
+
     }
 }
