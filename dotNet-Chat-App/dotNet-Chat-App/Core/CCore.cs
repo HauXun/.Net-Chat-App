@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace dotNet_Chat_App.Core
 {
-    public class CCore : IActions
+    public class CCore : IActions, ITodo
     {
         public void Close()
         {
@@ -20,7 +20,7 @@ namespace dotNet_Chat_App.Core
             throw new NotImplementedException();
         }
 
-        public void SendMessage(MessageType type)
+        public void HandleAction(DoActions actions)
         {
             throw new NotImplementedException();
         }

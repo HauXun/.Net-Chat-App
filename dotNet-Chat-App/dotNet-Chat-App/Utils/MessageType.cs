@@ -9,6 +9,11 @@ namespace dotNet_Chat_App.Utils
     public class MessageType
     {
         private volatile static MessageType instance;
+
+        private MessageType()
+        {
+
+        }
         public enum MsgType
         {
             ServerSendAll,

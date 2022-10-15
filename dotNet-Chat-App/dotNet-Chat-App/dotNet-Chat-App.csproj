@@ -76,14 +76,17 @@
       <DependentUpon>frmServer.cs</DependentUpon>
     </Compile>
     <Compile Include="IAction\IActions.cs" />
+    <Compile Include="IAction\ITodo.cs" />
     <Compile Include="Model\BusinessLogicLayer\ClientBLL.cs" />
     <Compile Include="Model\DataAccessLayer\ClientDAL.cs" />
     <Compile Include="Model\Entities\ChatGroup.cs" />
     <Compile Include="Model\Entities\Client.cs" />
     <Compile Include="Model\Entities\ClientsChatGroup.cs" />
     <Compile Include="Model\Entities\Message.cs" />
+    <Compile Include="Model\Entities\MessageType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\DoActions.cs" />
     <Compile Include="Utils\MessageType.cs" />
     <Compile Include="Utils\DataProvider.cs" />
     <EmbeddedResource Include="frmLogin.resx">

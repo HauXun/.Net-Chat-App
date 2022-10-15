@@ -27,7 +27,7 @@ namespace dotNet_Chat_App.Utils
         private DataProvider() { }
 
         public static string connectionString
-                = $@"server=(local)\SQLEXPRESS; Database=AppChatDB; integrated security=true;";
+                = $@"server=(local)\; Database=AppChatDB; integrated security=true;";
         public DataTable ExcuteQuery(string query, object[] parameter = null)
         {
             DataTable data = new DataTable();
