@@ -11,8 +11,9 @@ namespace dotNet_Chat_App.Utils
     {
         public enum Todo
         {
-            GetOnline,
-            GetOfflineMessage,
+            PushStatus,
+            PushOfflineMessage,
+            PushOfflineGroupMessage
         }
         static public Todo TodoAction;
         static public MessageType MsgType;

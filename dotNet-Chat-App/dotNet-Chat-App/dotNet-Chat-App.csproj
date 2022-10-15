@@ -55,8 +55,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddToGroup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddToGroup.Designer.cs">
+      <DependentUpon>AddToGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="Core\CCore.cs" />
     <Compile Include="Core\SCore.cs" />
+    <Compile Include="frmChatDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmChatDialog.Designer.cs">
+      <DependentUpon>frmChatDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmClient.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -86,11 +98,29 @@
     <Compile Include="Model\Entities\MessageType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UserControls\ClientBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ClientBox.Designer.cs">
+      <DependentUpon>ClientBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Utils\DoActions.cs" />
     <Compile Include="Utils\MessageType.cs" />
     <Compile Include="Utils\DataProvider.cs" />
+    <EmbeddedResource Include="AddToGroup.resx">
+      <DependentUpon>AddToGroup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmChatDialog.resx">
+      <DependentUpon>frmChatDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmClient.resx">
+      <DependentUpon>frmClient.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmLogin.resx">
       <DependentUpon>frmLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmServer.resx">
+      <DependentUpon>frmServer.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -100,7 +130,11 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="UserControls\ClientBox.resx">
+      <DependentUpon>ClientBox.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -115,9 +149,14 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\Online.png" />
+  </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Offline.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
