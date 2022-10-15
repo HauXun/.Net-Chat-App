@@ -20,6 +20,7 @@ namespace dotNet_Chat_App.Utils
             ServerToSingleClient,
             OfflineSending,
             ClientToClient,
+            ChatToGroup
         }
 
         public static MessageType Instance

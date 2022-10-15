@@ -1,4 +1,5 @@
-﻿using System;
+﻿using dotNet_Chat_App.UserControls;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +16,16 @@ namespace dotNet_Chat_App
         public frmServer()
         {
             InitializeComponent();
+
+            for (int i = 0; i < 5; i++)
+            {
+                this.flpClientContainer.Controls.Add(new ClientBox(
+                    Properties.Resources.Online));
+                this.flpClientContainer.Controls.Add(new ClientBox(
+                    Properties.Resources.Offline));
+            }
+
+            new frmChatDialog().Show();
         }
     }
 }

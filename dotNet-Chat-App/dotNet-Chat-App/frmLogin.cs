@@ -15,10 +15,13 @@ namespace dotNet_Chat_App
 {
     public partial class frmLogin : Form
     {
-        string Id;
-        string passWord;
+        static string Id;
+        static string passWord;
         const int SERVER_ID = 1;
-        
+        static frmServer server;
+        static frmClient client;
+
+
         public frmLogin()
         {
             InitializeComponent();
@@ -36,12 +39,20 @@ namespace dotNet_Chat_App
 
             if (ID > 0 && ID != SERVER_ID)
             {
-                new frmClient().Show();
+                client = new frmClient();
+                client.FormClosed += Client_FormClosed;
+                this?.Hide();
+                client?.Show();
             }
             else
             {
                 MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
             }
+        }
+
+        private void Client_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this?.Show();
         }
 
         private void btnServer_Click(object sender, EventArgs e)
@@ -53,13 +64,23 @@ namespace dotNet_Chat_App
 
             if (ID > 0 && ID == SERVER_ID)
             {
-                new frmServer().Show();
+                server = new frmServer();
+                server.FormClosed += Server_FormClosed;
+                this?.Hide();
+                server?.Show();
             }
             else
             {
                 MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
             }
         }
+
+        private void Server_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this?.Show();
+
+        }
+
         private int IsLogin(string Id, string passWord)
         {
             return ClientBLL.Instance.IsLogin(Id, passWord);
