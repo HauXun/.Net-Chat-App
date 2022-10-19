@@ -61,6 +61,16 @@
     <Compile Include="AddToGroup.Designer.cs">
       <DependentUpon>AddToGroup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Common\TransactionBuffer.cs" />
+    <Compile Include="Common\TransactionPacket.cs" />
+    <Compile Include="IProps\ICCommunicate.cs" />
+    <Compile Include="IProps\ICommunicateSocket.cs" />
+    <Compile Include="IProps\IReceivePacket.cs" />
+    <Compile Include="IProps\ISCommunicate.cs" />
+    <Compile Include="IProps\ITranspotDefine.cs" />
+    <Compile Include="Services\FragmentationServices.cs" />
+    <Compile Include="Services\IPServices.cs" />
+    <Compile Include="Config\GUILogger.cs" />
     <Compile Include="Core\CCore.cs" />
     <Compile Include="Core\SCore.cs" />
     <Compile Include="frmChatDialog.cs">
@@ -88,6 +98,7 @@
       <DependentUpon>frmServer.cs</DependentUpon>
     </Compile>
     <Compile Include="IAction\IActions.cs" />
+    <Compile Include="IAction\ILogger.cs" />
     <Compile Include="IAction\ITodo.cs" />
     <Compile Include="Model\BusinessLogicLayer\ClientBLL.cs" />
     <Compile Include="Model\DataAccessLayer\ClientDAL.cs" />
@@ -98,15 +109,18 @@
     <Compile Include="Model\Entities\MessageType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\SocketService.cs" />
+    <Compile Include="TAP Socket Model\TAPResultPattern.cs" />
     <Compile Include="UserControls\ClientBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UserControls\ClientBox.Designer.cs">
       <DependentUpon>ClientBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="Utils\DoActions.cs" />
-    <Compile Include="Utils\MessageType.cs" />
+    <Compile Include="Common\DelegateDefined.cs" />
+    <Compile Include="Common\DoActions.cs" />
     <Compile Include="Utils\DataProvider.cs" />
+    <Compile Include="TAP Socket Model\TAPSocket.cs" />
     <EmbeddedResource Include="AddToGroup.resx">
       <DependentUpon>AddToGroup.cs</DependentUpon>
     </EmbeddedResource>
