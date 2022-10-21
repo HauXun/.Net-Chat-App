@@ -6,7 +6,7 @@ namespace dotNet_Chat_App.IProps
 	public interface ICCommunicate
 	{
 		Socket Client { get; }
-		Client MyClient { get; }
+		Client MyClient { get; set; }
 
 		TAPResultPattern ConnectResult { get; }
 	}

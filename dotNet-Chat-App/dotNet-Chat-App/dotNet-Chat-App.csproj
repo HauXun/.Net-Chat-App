@@ -67,6 +67,7 @@
     <Compile Include="IProps\ICommunicateSocket.cs" />
     <Compile Include="IProps\IReceivePacket.cs" />
     <Compile Include="IProps\ISCommunicate.cs" />
+    <Compile Include="IProps\ISendPacket.cs" />
     <Compile Include="IProps\ITranspotDefine.cs" />
     <Compile Include="Services\FragmentationServices.cs" />
     <Compile Include="Services\IPServices.cs" />
