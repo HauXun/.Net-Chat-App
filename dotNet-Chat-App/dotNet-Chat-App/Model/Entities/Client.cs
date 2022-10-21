@@ -3,26 +3,17 @@ namespace dotNet_Chat_App
     using System;
     using System.Collections.Generic;
     using System.Data;
-    using System.Net.Sockets;
-    using System.Xml.Serialization;
-
-    [Serializable]
+	using System.IO;
+	using System.Net.Sockets;
+	using System.Xml.Serialization;
+	[Serializable]
     public class Client
     {
-        [XmlElement("id")]
         public int ID { get; set; }
-
-        [XmlElement("name")]
         public string Name { get; set; }
-
-        [XmlElement("pass")]
         public string Password { get; set; }
-
-        [XmlElement("online")]
         public bool Online { get; set; }
-
-        [XmlElement("m_client")]
-        public object M_Client { get; set; }
+        public Socket M_Client { get; set; }
 
         public Client()
         {
@@ -35,5 +26,5 @@ namespace dotNet_Chat_App
             this.Password = row["Password"].ToString();
             this.Online = (bool)row["Online"];
         }
-    }
+	}
 }
