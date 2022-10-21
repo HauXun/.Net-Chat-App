@@ -12,10 +12,18 @@ namespace dotNet_Chat_App.UserControls
 {
     public partial class ClientBox : UserControl
     {
-        public ClientBox(Image status)
+        public ClientBox(bool status, string name)
         {
             InitializeComponent();
-            this.pbStatus.BackgroundImage = status;
+            if (status)
+            {
+                this.pbStatus.BackgroundImage = Properties.Resources.Online;
+            }
+            else
+            {
+                this.pbStatus.BackgroundImage = Properties.Resources.Offline;
+            }
+            lbName.Text = name;
         }
 
         private void pnlContainer_MouseEnter(object sender, EventArgs e)

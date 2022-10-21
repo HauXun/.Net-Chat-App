@@ -18,8 +18,8 @@ namespace dotNet_Chat_App
         static string Id;
         static string passWord;
         const int SERVER_ID = 1;
-        static frmServer server;
-        static frmClient client;
+        static frmServer frm_server;
+        static frmClient frm_client;
 
 
         public frmLogin()
@@ -27,22 +27,18 @@ namespace dotNet_Chat_App
             InitializeComponent();
         }
 
-        private void frmLogin_Load(object sender, EventArgs e)
-        {
-        }
-
         private void btnClient_Click(object sender, EventArgs e)
         {
             Id = txbUserName.Text;
             passWord = txbPass.Text;
-            int ID = IsLogin(Id, passWord);
+            Client client = IsLogin(Id, passWord);
 
-            if (ID > 0 && ID != SERVER_ID)
+            if (client.ID > 0 && client.ID != SERVER_ID)
             {
-                client = new frmClient();
-                client.FormClosed += Client_FormClosed;
+                frm_client = new frmClient(client);
+                frm_client.FormClosed += Client_FormClosed;
                 this?.Hide();
-                client?.Show();
+                frm_client?.Show();
             }
             else
             {
@@ -60,14 +56,14 @@ namespace dotNet_Chat_App
 
             Id = txbUserName.Text;
             passWord = txbPass.Text;
-            int ID = IsLogin(Id, passWord);
+            Client client = IsLogin(Id, passWord);
 
-            if (ID > 0 && ID == SERVER_ID)
+            if (client.ID > 0 && client.ID == SERVER_ID)
             {
-                server = new frmServer();
-                server.FormClosed += Server_FormClosed;
+                frm_server = new frmServer();
+                frm_server.FormClosed += Server_FormClosed;
                 this?.Hide();
-                server?.Show();
+                frm_server?.Show();
             }
             else
             {
@@ -81,7 +77,7 @@ namespace dotNet_Chat_App
 
         }
 
-        private int IsLogin(string Id, string passWord)
+        private Client IsLogin(string Id, string passWord)
         {
             return ClientBLL.Instance.IsLogin(Id, passWord);
         }

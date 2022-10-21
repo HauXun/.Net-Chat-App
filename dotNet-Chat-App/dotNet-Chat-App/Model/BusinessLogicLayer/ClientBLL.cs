@@ -28,9 +28,14 @@ namespace dotNet_Chat_App.Model.BusinessLogicLayer
         }
 
 
-        public int IsLogin(string Id, string passWord)
+        public Client IsLogin(string Id, string passWord)
         {
             return ClientDAL.Instance.IsLogin(Id, passWord);
+        }
+
+        public List<Client> GetClients()
+        {
+            return ClientDAL.Instance.GetClients();
         }
     }
 }
