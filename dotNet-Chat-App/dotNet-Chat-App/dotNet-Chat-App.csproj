@@ -65,10 +65,12 @@
     <Compile Include="Common\TransactionPacket.cs" />
     <Compile Include="IProps\ICCommunicate.cs" />
     <Compile Include="IProps\ICommunicateSocket.cs" />
+    <Compile Include="IProps\IDelegateDefined.cs" />
     <Compile Include="IProps\IReceivePacket.cs" />
     <Compile Include="IProps\ISCommunicate.cs" />
     <Compile Include="IProps\ISendPacket.cs" />
     <Compile Include="IProps\ITranspotDefine.cs" />
+    <Compile Include="Services\AsynchronousServices.cs" />
     <Compile Include="Services\FragmentationServices.cs" />
     <Compile Include="Services\IPServices.cs" />
     <Compile Include="Config\GUILogger.cs" />

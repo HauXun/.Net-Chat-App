@@ -27,265 +27,267 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.flpGroupContainer = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel6 = new System.Windows.Forms.Panel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.flpClientContainer = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lbTitle = new System.Windows.Forms.Label();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.tbMessage = new System.Windows.Forms.TextBox();
-            this.panel5 = new System.Windows.Forms.Panel();
-            this.tbSend = new System.Windows.Forms.TextBox();
-            this.btnSend = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
-            this.splitContainer1.Panel1.SuspendLayout();
-            this.splitContainer1.Panel2.SuspendLayout();
-            this.splitContainer1.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
-            this.panel3.SuspendLayout();
-            this.flpGroupContainer.SuspendLayout();
-            this.panel6.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.flpClientContainer.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
-            this.panel4.SuspendLayout();
-            this.panel5.SuspendLayout();
-            this.SuspendLayout();
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.IsSplitterFixed = true;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel1);
-            this.splitContainer1.Panel1.Padding = new System.Windows.Forms.Padding(11, 10, 11, 10);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.tableLayoutPanel2);
-            this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(8, 10, 8, 7);
-            this.splitContainer1.Size = new System.Drawing.Size(883, 673);
-            this.splitContainer1.SplitterDistance = 376;
-            this.splitContainer1.TabIndex = 1;
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.panel3, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(11, 10);
-            this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 2;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(354, 653);
-            this.tableLayoutPanel1.TabIndex = 0;
-            // 
-            // panel3
-            // 
-            this.panel3.BackColor = System.Drawing.Color.White;
-            this.panel3.Controls.Add(this.flpGroupContainer);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(3, 393);
-            this.panel3.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(348, 258);
-            this.panel3.TabIndex = 2;
-            // 
-            // flpGroupContainer
-            // 
-            this.flpGroupContainer.AutoScroll = true;
-            this.flpGroupContainer.Controls.Add(this.panel6);
-            this.flpGroupContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpGroupContainer.Location = new System.Drawing.Point(0, 0);
-            this.flpGroupContainer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.flpGroupContainer.Name = "flpGroupContainer";
-            this.flpGroupContainer.Size = new System.Drawing.Size(348, 258);
-            this.flpGroupContainer.TabIndex = 0;
-            // 
-            // panel6
-            // 
-            this.panel6.BackColor = System.Drawing.Color.White;
-            this.panel6.Controls.Add(this.label1);
-            this.panel6.Location = new System.Drawing.Point(3, 2);
-            this.panel6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 10);
-            this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(321, 25);
-            this.panel6.TabIndex = 4;
-            // 
-            // label1
-            // 
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(321, 25);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Groups";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.White;
-            this.panel2.Controls.Add(this.flpClientContainer);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(3, 2);
-            this.panel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(348, 387);
-            this.panel2.TabIndex = 1;
-            // 
-            // flpClientContainer
-            // 
-            this.flpClientContainer.AutoScroll = true;
-            this.flpClientContainer.Controls.Add(this.panel1);
-            this.flpClientContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpClientContainer.Location = new System.Drawing.Point(0, 0);
-            this.flpClientContainer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.flpClientContainer.Name = "flpClientContainer";
-            this.flpClientContainer.Size = new System.Drawing.Size(348, 387);
-            this.flpClientContainer.TabIndex = 0;
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.Controls.Add(this.lbTitle);
-            this.panel1.Location = new System.Drawing.Point(3, 2);
-            this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 10);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(321, 25);
-            this.panel1.TabIndex = 4;
-            // 
-            // lbTitle
-            // 
-            this.lbTitle.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lbTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.lbTitle.Location = new System.Drawing.Point(0, 0);
-            this.lbTitle.Name = "lbTitle";
-            this.lbTitle.Size = new System.Drawing.Size(321, 25);
-            this.lbTitle.TabIndex = 1;
-            this.lbTitle.Text = "Messenger Fakke China Number 2";
-            this.lbTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lbTitle.Click += new System.EventHandler(this.lbTitle_Click);
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.panel4, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.panel5, 0, 1);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(8, 10);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 90F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(487, 656);
-            this.tableLayoutPanel2.TabIndex = 0;
-            // 
-            // panel4
-            // 
-            this.panel4.BackColor = System.Drawing.SystemColors.Control;
-            this.panel4.Controls.Add(this.tbMessage);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(3, 2);
-            this.panel4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel4.Name = "panel4";
-            this.panel4.Padding = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel4.Size = new System.Drawing.Size(481, 586);
-            this.panel4.TabIndex = 0;
-            // 
-            // tbMessage
-            // 
-            this.tbMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tbMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.tbMessage.Location = new System.Drawing.Point(3, 2);
-            this.tbMessage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tbMessage.Multiline = true;
-            this.tbMessage.Name = "tbMessage";
-            this.tbMessage.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.tbMessage.Size = new System.Drawing.Size(475, 582);
-            this.tbMessage.TabIndex = 2;
-            // 
-            // panel5
-            // 
-            this.panel5.Controls.Add(this.tbSend);
-            this.panel5.Controls.Add(this.btnSend);
-            this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel5.Location = new System.Drawing.Point(3, 592);
-            this.panel5.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(481, 62);
-            this.panel5.TabIndex = 1;
-            // 
-            // tbSend
-            // 
-            this.tbSend.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.tbSend.Location = new System.Drawing.Point(3, 2);
-            this.tbSend.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.tbSend.Multiline = true;
-            this.tbSend.Name = "tbSend";
-            this.tbSend.Size = new System.Drawing.Size(384, 56);
-            this.tbSend.TabIndex = 1;
-            // 
-            // btnSend
-            // 
-            this.btnSend.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSend.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
-            this.btnSend.Location = new System.Drawing.Point(393, 2);
-            this.btnSend.Margin = new System.Windows.Forms.Padding(3, 2, 0, 2);
-            this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(85, 57);
-            this.btnSend.TabIndex = 0;
-            this.btnSend.Text = "Send";
-            this.btnSend.UseVisualStyleBackColor = true;
-            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
-            // 
-            // frmClient
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(883, 673);
-            this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.Name = "frmClient";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Messenger Fakke";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmClient_FormClosing);
-            this.Load += new System.EventHandler(this.frmClient_Load);
-            this.splitContainer1.Panel1.ResumeLayout(false);
-            this.splitContainer1.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
-            this.splitContainer1.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.panel3.ResumeLayout(false);
-            this.flpGroupContainer.ResumeLayout(false);
-            this.panel6.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.flpClientContainer.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.tableLayoutPanel2.ResumeLayout(false);
-            this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
-            this.panel5.ResumeLayout(false);
-            this.panel5.PerformLayout();
-            this.ResumeLayout(false);
+			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+			this.panel3 = new System.Windows.Forms.Panel();
+			this.flpGroupContainer = new System.Windows.Forms.FlowLayoutPanel();
+			this.panel6 = new System.Windows.Forms.Panel();
+			this.label1 = new System.Windows.Forms.Label();
+			this.panel2 = new System.Windows.Forms.Panel();
+			this.flpClientContainer = new System.Windows.Forms.FlowLayoutPanel();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.lbTitle = new System.Windows.Forms.Label();
+			this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+			this.panel4 = new System.Windows.Forms.Panel();
+			this.tbMessage = new System.Windows.Forms.TextBox();
+			this.panel5 = new System.Windows.Forms.Panel();
+			this.tbSend = new System.Windows.Forms.TextBox();
+			this.btnSend = new System.Windows.Forms.Button();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+			this.splitContainer1.Panel1.SuspendLayout();
+			this.splitContainer1.Panel2.SuspendLayout();
+			this.splitContainer1.SuspendLayout();
+			this.tableLayoutPanel1.SuspendLayout();
+			this.panel3.SuspendLayout();
+			this.flpGroupContainer.SuspendLayout();
+			this.panel6.SuspendLayout();
+			this.panel2.SuspendLayout();
+			this.flpClientContainer.SuspendLayout();
+			this.panel1.SuspendLayout();
+			this.tableLayoutPanel2.SuspendLayout();
+			this.panel4.SuspendLayout();
+			this.panel5.SuspendLayout();
+			this.SuspendLayout();
+			// 
+			// splitContainer1
+			// 
+			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splitContainer1.IsSplitterFixed = true;
+			this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+			this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.splitContainer1.Name = "splitContainer1";
+			// 
+			// splitContainer1.Panel1
+			// 
+			this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel1);
+			this.splitContainer1.Panel1.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
+			// 
+			// splitContainer1.Panel2
+			// 
+			this.splitContainer1.Panel2.Controls.Add(this.tableLayoutPanel2);
+			this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(6, 8, 6, 6);
+			this.splitContainer1.Size = new System.Drawing.Size(662, 547);
+			this.splitContainer1.SplitterDistance = 281;
+			this.splitContainer1.SplitterWidth = 3;
+			this.splitContainer1.TabIndex = 1;
+			// 
+			// tableLayoutPanel1
+			// 
+			this.tableLayoutPanel1.ColumnCount = 1;
+			this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel1.Controls.Add(this.panel3, 0, 1);
+			this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 0);
+			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 8);
+			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+			this.tableLayoutPanel1.RowCount = 2;
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
+			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(265, 531);
+			this.tableLayoutPanel1.TabIndex = 0;
+			// 
+			// panel3
+			// 
+			this.panel3.BackColor = System.Drawing.Color.White;
+			this.panel3.Controls.Add(this.flpGroupContainer);
+			this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel3.Location = new System.Drawing.Point(2, 320);
+			this.panel3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel3.Name = "panel3";
+			this.panel3.Size = new System.Drawing.Size(261, 209);
+			this.panel3.TabIndex = 2;
+			// 
+			// flpGroupContainer
+			// 
+			this.flpGroupContainer.AutoScroll = true;
+			this.flpGroupContainer.Controls.Add(this.panel6);
+			this.flpGroupContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.flpGroupContainer.Location = new System.Drawing.Point(0, 0);
+			this.flpGroupContainer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.flpGroupContainer.Name = "flpGroupContainer";
+			this.flpGroupContainer.Size = new System.Drawing.Size(261, 209);
+			this.flpGroupContainer.TabIndex = 0;
+			// 
+			// panel6
+			// 
+			this.panel6.BackColor = System.Drawing.Color.White;
+			this.panel6.Controls.Add(this.label1);
+			this.panel6.Location = new System.Drawing.Point(2, 2);
+			this.panel6.Margin = new System.Windows.Forms.Padding(2, 2, 2, 8);
+			this.panel6.Name = "panel6";
+			this.panel6.Size = new System.Drawing.Size(241, 20);
+			this.panel6.TabIndex = 4;
+			// 
+			// label1
+			// 
+			this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+			this.label1.Location = new System.Drawing.Point(0, 0);
+			this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(241, 20);
+			this.label1.TabIndex = 1;
+			this.label1.Text = "Groups";
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// panel2
+			// 
+			this.panel2.BackColor = System.Drawing.Color.White;
+			this.panel2.Controls.Add(this.flpClientContainer);
+			this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel2.Location = new System.Drawing.Point(2, 2);
+			this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(261, 314);
+			this.panel2.TabIndex = 1;
+			// 
+			// flpClientContainer
+			// 
+			this.flpClientContainer.AutoScroll = true;
+			this.flpClientContainer.Controls.Add(this.panel1);
+			this.flpClientContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.flpClientContainer.Location = new System.Drawing.Point(0, 0);
+			this.flpClientContainer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.flpClientContainer.Name = "flpClientContainer";
+			this.flpClientContainer.Size = new System.Drawing.Size(261, 314);
+			this.flpClientContainer.TabIndex = 0;
+			// 
+			// panel1
+			// 
+			this.panel1.BackColor = System.Drawing.Color.White;
+			this.panel1.Controls.Add(this.lbTitle);
+			this.panel1.Location = new System.Drawing.Point(2, 2);
+			this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 8);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(241, 20);
+			this.panel1.TabIndex = 4;
+			// 
+			// lbTitle
+			// 
+			this.lbTitle.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lbTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+			this.lbTitle.Location = new System.Drawing.Point(0, 0);
+			this.lbTitle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lbTitle.Name = "lbTitle";
+			this.lbTitle.Size = new System.Drawing.Size(241, 20);
+			this.lbTitle.TabIndex = 1;
+			this.lbTitle.Text = "Messenger Fakke China Number 2";
+			this.lbTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// tableLayoutPanel2
+			// 
+			this.tableLayoutPanel2.ColumnCount = 1;
+			this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+			this.tableLayoutPanel2.Controls.Add(this.panel4, 0, 0);
+			this.tableLayoutPanel2.Controls.Add(this.panel5, 0, 1);
+			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tableLayoutPanel2.Location = new System.Drawing.Point(6, 8);
+			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+			this.tableLayoutPanel2.RowCount = 2;
+			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 90F));
+			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+			this.tableLayoutPanel2.Size = new System.Drawing.Size(366, 533);
+			this.tableLayoutPanel2.TabIndex = 0;
+			// 
+			// panel4
+			// 
+			this.panel4.BackColor = System.Drawing.SystemColors.Control;
+			this.panel4.Controls.Add(this.tbMessage);
+			this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel4.Location = new System.Drawing.Point(2, 2);
+			this.panel4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel4.Name = "panel4";
+			this.panel4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel4.Size = new System.Drawing.Size(362, 475);
+			this.panel4.TabIndex = 0;
+			// 
+			// tbMessage
+			// 
+			this.tbMessage.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tbMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+			this.tbMessage.Location = new System.Drawing.Point(2, 2);
+			this.tbMessage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tbMessage.Multiline = true;
+			this.tbMessage.Name = "tbMessage";
+			this.tbMessage.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.tbMessage.Size = new System.Drawing.Size(358, 471);
+			this.tbMessage.TabIndex = 2;
+			// 
+			// panel5
+			// 
+			this.panel5.Controls.Add(this.tbSend);
+			this.panel5.Controls.Add(this.btnSend);
+			this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.panel5.Location = new System.Drawing.Point(2, 481);
+			this.panel5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel5.Name = "panel5";
+			this.panel5.Size = new System.Drawing.Size(362, 50);
+			this.panel5.TabIndex = 1;
+			// 
+			// tbSend
+			// 
+			this.tbSend.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+			this.tbSend.Location = new System.Drawing.Point(2, 2);
+			this.tbSend.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tbSend.Multiline = true;
+			this.tbSend.Name = "tbSend";
+			this.tbSend.Size = new System.Drawing.Size(289, 46);
+			this.tbSend.TabIndex = 1;
+			// 
+			// btnSend
+			// 
+			this.btnSend.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.btnSend.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
+			this.btnSend.Location = new System.Drawing.Point(295, 2);
+			this.btnSend.Margin = new System.Windows.Forms.Padding(2, 2, 0, 2);
+			this.btnSend.Name = "btnSend";
+			this.btnSend.Size = new System.Drawing.Size(64, 46);
+			this.btnSend.TabIndex = 0;
+			this.btnSend.Text = "Send";
+			this.btnSend.UseVisualStyleBackColor = true;
+			this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
+			// 
+			// frmClient
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(662, 547);
+			this.Controls.Add(this.splitContainer1);
+			this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.Name = "frmClient";
+			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+			this.Text = "Messenger Fakke";
+			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmClient_FormClosing);
+			this.Load += new System.EventHandler(this.frmClient_Load);
+			this.splitContainer1.Panel1.ResumeLayout(false);
+			this.splitContainer1.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+			this.splitContainer1.ResumeLayout(false);
+			this.tableLayoutPanel1.ResumeLayout(false);
+			this.panel3.ResumeLayout(false);
+			this.flpGroupContainer.ResumeLayout(false);
+			this.panel6.ResumeLayout(false);
+			this.panel2.ResumeLayout(false);
+			this.flpClientContainer.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
+			this.tableLayoutPanel2.ResumeLayout(false);
+			this.panel4.ResumeLayout(false);
+			this.panel4.PerformLayout();
+			this.panel5.ResumeLayout(false);
+			this.panel5.PerformLayout();
+			this.ResumeLayout(false);
 
         }
 

@@ -29,21 +29,23 @@ namespace dotNet_Chat_App
 
         private void btnClient_Click(object sender, EventArgs e)
         {
-            Id = txbUserName.Text;
-            passWord = txbPass.Text;
-            Client client = IsLogin(Id, passWord);
+            //Id = txbUserName.Text;
+            //passWord = txbPass.Text;
+            //Client client = IsLogin(Id, passWord);
 
-            if (client.ID > 0 && client.ID != SERVER_ID)
-            {
-                frm_client = new frmClient(client);
-                frm_client.FormClosed += Client_FormClosed;
-                this?.Hide();
-                frm_client?.Show();
-            }
-            else
-            {
-                MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
-            }
+            //if (client.ID > 0 && client.ID != SERVER_ID)
+            //{
+            //    frm_client = new frmClient(client);
+            //    frm_client.FormClosed += Client_FormClosed;
+            //    this?.Hide();
+            //    frm_client?.Show();
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
+            //}
+
+            new frmClient(new Client() { ID = 1, Name = "Hau xun", Online = false}).Show();
         }
 
         private void Client_FormClosed(object sender, FormClosedEventArgs e)
@@ -54,21 +56,23 @@ namespace dotNet_Chat_App
         private void btnServer_Click(object sender, EventArgs e)
         {
 
-            Id = txbUserName.Text;
-            passWord = txbPass.Text;
-            Client client = IsLogin(Id, passWord);
+            //Id = txbUserName.Text;
+            //passWord = txbPass.Text;
+            //Client client = IsLogin(Id, passWord);
 
-            if (client.ID > 0 && client.ID == SERVER_ID)
-            {
-                frm_server = new frmServer();
-                frm_server.FormClosed += Server_FormClosed;
-                this?.Hide();
-                frm_server?.Show();
-            }
-            else
-            {
-                MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
-            }
+            //if (client.ID > 0 && client.ID == SERVER_ID)
+            //{
+            //    frm_server = new frmServer();
+            //    frm_server.FormClosed += Server_FormClosed;
+            //    this?.Hide();
+            //    frm_server?.Show();
+            //}
+            //else
+            //{
+            //    MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
+            //}
+
+            new frmServer().Show();
         }
 
         private void Server_FormClosed(object sender, FormClosedEventArgs e)

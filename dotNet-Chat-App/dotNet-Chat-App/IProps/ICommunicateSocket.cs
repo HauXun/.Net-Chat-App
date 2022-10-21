@@ -9,6 +9,7 @@ namespace dotNet_Chat_App.IProps
 		int Port { get; set; }
 		string SystemMsg { get; set; }
 		string UserMsg { get; set; }
+		int OnlineClientCount { get; set; }
 		List<Client> Clients { get; set; }
 		GetLog GetLog { set; }
 
