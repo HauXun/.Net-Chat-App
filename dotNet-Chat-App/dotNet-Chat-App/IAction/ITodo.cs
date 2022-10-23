@@ -7,7 +7,6 @@ namespace dotNet_Chat_App.IAction
     public interface ITodo
     {
         void HandleAction(TransactionPacket packet, Socket socket);
-        Task SendPacket(TransactionPacket packet);
-        Task SendPacket(TransactionPacket packet, Socket socket);
+        Task SendPacket(byte[] packet, Socket socket);
     }
 }

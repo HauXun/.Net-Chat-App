@@ -64,20 +64,20 @@
 			this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.splitContainer1.IsSplitterFixed = true;
 			this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-			this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
 			this.splitContainer1.Name = "splitContainer1";
 			// 
 			// splitContainer1.Panel1
 			// 
 			this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel1);
-			this.splitContainer1.Panel1.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
+			this.splitContainer1.Panel1.Padding = new System.Windows.Forms.Padding(8);
 			// 
 			// splitContainer1.Panel2
 			// 
 			this.splitContainer1.Panel2.Controls.Add(this.tableLayoutPanel2);
 			this.splitContainer1.Panel2.Padding = new System.Windows.Forms.Padding(6, 8, 6, 6);
 			this.splitContainer1.Size = new System.Drawing.Size(662, 547);
-			this.splitContainer1.SplitterDistance = 281;
+			this.splitContainer1.SplitterDistance = 282;
 			this.splitContainer1.SplitterWidth = 3;
 			this.splitContainer1.TabIndex = 1;
 			// 
@@ -89,12 +89,12 @@
 			this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 0);
 			this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel1.Location = new System.Drawing.Point(8, 8);
-			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(2);
 			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
 			this.tableLayoutPanel1.RowCount = 2;
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(265, 531);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(266, 531);
 			this.tableLayoutPanel1.TabIndex = 0;
 			// 
 			// panel3
@@ -103,9 +103,9 @@
 			this.panel3.Controls.Add(this.flpGroupContainer);
 			this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel3.Location = new System.Drawing.Point(2, 320);
-			this.panel3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel3.Margin = new System.Windows.Forms.Padding(2);
 			this.panel3.Name = "panel3";
-			this.panel3.Size = new System.Drawing.Size(261, 209);
+			this.panel3.Size = new System.Drawing.Size(262, 209);
 			this.panel3.TabIndex = 2;
 			// 
 			// flpGroupContainer
@@ -114,9 +114,9 @@
 			this.flpGroupContainer.Controls.Add(this.panel6);
 			this.flpGroupContainer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.flpGroupContainer.Location = new System.Drawing.Point(0, 0);
-			this.flpGroupContainer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.flpGroupContainer.Margin = new System.Windows.Forms.Padding(2);
 			this.flpGroupContainer.Name = "flpGroupContainer";
-			this.flpGroupContainer.Size = new System.Drawing.Size(261, 209);
+			this.flpGroupContainer.Size = new System.Drawing.Size(262, 209);
 			this.flpGroupContainer.TabIndex = 0;
 			// 
 			// panel6
@@ -147,9 +147,9 @@
 			this.panel2.Controls.Add(this.flpClientContainer);
 			this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel2.Location = new System.Drawing.Point(2, 2);
-			this.panel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel2.Margin = new System.Windows.Forms.Padding(2);
 			this.panel2.Name = "panel2";
-			this.panel2.Size = new System.Drawing.Size(261, 314);
+			this.panel2.Size = new System.Drawing.Size(262, 314);
 			this.panel2.TabIndex = 1;
 			// 
 			// flpClientContainer
@@ -158,17 +158,17 @@
 			this.flpClientContainer.Controls.Add(this.panel1);
 			this.flpClientContainer.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.flpClientContainer.Location = new System.Drawing.Point(0, 0);
-			this.flpClientContainer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.flpClientContainer.Margin = new System.Windows.Forms.Padding(2);
 			this.flpClientContainer.Name = "flpClientContainer";
-			this.flpClientContainer.Size = new System.Drawing.Size(261, 314);
+			this.flpClientContainer.Size = new System.Drawing.Size(262, 314);
 			this.flpClientContainer.TabIndex = 0;
 			// 
 			// panel1
 			// 
 			this.panel1.BackColor = System.Drawing.Color.White;
 			this.panel1.Controls.Add(this.lbTitle);
-			this.panel1.Location = new System.Drawing.Point(2, 2);
-			this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 8);
+			this.panel1.Location = new System.Drawing.Point(0, 0);
+			this.panel1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 8);
 			this.panel1.Name = "panel1";
 			this.panel1.Size = new System.Drawing.Size(241, 20);
 			this.panel1.TabIndex = 4;
@@ -193,12 +193,12 @@
 			this.tableLayoutPanel2.Controls.Add(this.panel5, 0, 1);
 			this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tableLayoutPanel2.Location = new System.Drawing.Point(6, 8);
-			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(2);
 			this.tableLayoutPanel2.Name = "tableLayoutPanel2";
 			this.tableLayoutPanel2.RowCount = 2;
 			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 90F));
 			this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
-			this.tableLayoutPanel2.Size = new System.Drawing.Size(366, 533);
+			this.tableLayoutPanel2.Size = new System.Drawing.Size(365, 533);
 			this.tableLayoutPanel2.TabIndex = 0;
 			// 
 			// panel4
@@ -207,10 +207,10 @@
 			this.panel4.Controls.Add(this.tbMessage);
 			this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel4.Location = new System.Drawing.Point(2, 2);
-			this.panel4.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel4.Margin = new System.Windows.Forms.Padding(2);
 			this.panel4.Name = "panel4";
-			this.panel4.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
-			this.panel4.Size = new System.Drawing.Size(362, 475);
+			this.panel4.Padding = new System.Windows.Forms.Padding(2);
+			this.panel4.Size = new System.Drawing.Size(361, 475);
 			this.panel4.TabIndex = 0;
 			// 
 			// tbMessage
@@ -218,11 +218,11 @@
 			this.tbMessage.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tbMessage.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
 			this.tbMessage.Location = new System.Drawing.Point(2, 2);
-			this.tbMessage.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tbMessage.Margin = new System.Windows.Forms.Padding(2);
 			this.tbMessage.Multiline = true;
 			this.tbMessage.Name = "tbMessage";
 			this.tbMessage.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.tbMessage.Size = new System.Drawing.Size(358, 471);
+			this.tbMessage.Size = new System.Drawing.Size(357, 471);
 			this.tbMessage.TabIndex = 2;
 			// 
 			// panel5
@@ -231,16 +231,16 @@
 			this.panel5.Controls.Add(this.btnSend);
 			this.panel5.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel5.Location = new System.Drawing.Point(2, 481);
-			this.panel5.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.panel5.Margin = new System.Windows.Forms.Padding(2);
 			this.panel5.Name = "panel5";
-			this.panel5.Size = new System.Drawing.Size(362, 50);
+			this.panel5.Size = new System.Drawing.Size(361, 50);
 			this.panel5.TabIndex = 1;
 			// 
 			// tbSend
 			// 
 			this.tbSend.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F);
 			this.tbSend.Location = new System.Drawing.Point(2, 2);
-			this.tbSend.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.tbSend.Margin = new System.Windows.Forms.Padding(2);
 			this.tbSend.Multiline = true;
 			this.tbSend.Name = "tbSend";
 			this.tbSend.Size = new System.Drawing.Size(289, 46);
@@ -265,7 +265,7 @@
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(662, 547);
 			this.Controls.Add(this.splitContainer1);
-			this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+			this.Margin = new System.Windows.Forms.Padding(2);
 			this.Name = "frmClient";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Messenger Fakke";

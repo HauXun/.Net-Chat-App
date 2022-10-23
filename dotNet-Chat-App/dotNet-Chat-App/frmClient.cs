@@ -15,6 +15,8 @@ namespace dotNet_Chat_App
 	{
 		private System.Windows.Forms.Timer m_msgTimer;
 		private CCore m_cCore;
+		private static Mutex mutex = new Mutex();
+
 		public frmClient(Client client)
 		{
 			InitializeComponent();
@@ -46,6 +48,8 @@ namespace dotNet_Chat_App
 		{
 			if (!string.IsNullOrEmpty(m_cCore.UserMsg))
 				tbMessage.Text += m_cCore.UserMsg;
+			if (!string.IsNullOrEmpty(m_cCore.SystemMsg))
+				tbSend.Text += m_cCore.SystemMsg;
 			m_cCore.SystemMsg = m_cCore.UserMsg = string.Empty;
 		}
 
@@ -61,47 +65,75 @@ namespace dotNet_Chat_App
 
 		private async void Send(string message)
 		{
-			await m_cCore.SendPacket(new TransactionPacket((int)DoActions.Todo.PushMessage, message));
+			if (m_cCore.Client != null && m_cCore.Client.Connected)
+			{
+				await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushMessage, message)), m_cCore.Client);
+			}
 		}
 
 		private async void SendLog()
 		{
-			if (m_cCore.MyClient != null)
+			if (m_cCore.Client != null && m_cCore.Client.Connected && m_cCore.MyClient != null)
 			{
-				await m_cCore.SendPacket(new TransactionPacket((int)DoActions.Todo.PushLog, new object[]
+				await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushLog, new object[]
 				{
 					m_cCore.MyClient.ID,
 					m_cCore.MyClient.Name,
-				}));
+				})), m_cCore.Client);
 			}
 		}
 
 		private async void Closez()
 		{
-			// Send the close message for the endpoint
-			await Task.Run(() => m_cCore.SendPacket(new TransactionPacket((int)DoActions.Todo.PushMessage, $"The client closed")));
-			m_msgTimer.Stop();
-			m_cCore.Closing = true;
+			if (m_cCore.Client != null && m_cCore.Client.Connected)
+			{
+				// Send the close message for the endpoint
+				await Task.Run(() => m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushMessage, $"The client closed")), m_cCore.Client));
+				m_msgTimer.Stop();
+				m_cCore.Closing = true;
+			}
 		}
 
 		private void ClearClientListContainer()
 		{
-			this.Invoke(new MethodInvoker(delegate ()
+			try
 			{
-				int count = flpClientContainer.Controls.Count;
-				for (int i = count - 1; i > 0; i--)
+				mutex.WaitOne();
+				this.Invoke(new MethodInvoker(delegate ()
 				{
-					this.flpClientContainer.Controls.RemoveAt(i);
-				}
-			}));
+					int count = flpClientContainer.Controls.Count;
+					for (int i = count - 1; i > 0; i--)
+					{
+						this.flpClientContainer.Controls.RemoveAt(i);
+					}
+				}));
+			}
+			finally
+			{
+				mutex.ReleaseMutex();
+			}
 		}
 
-		private void LoadClientList(Client client)
+		private void LoadClientList()
 		{
-			this.Invoke(new MethodInvoker(delegate ()
+			try
 			{
-				this.flpClientContainer.Controls.Add(new ClientBox(client.Online, client.Name));
-			}));
+				mutex.WaitOne();
+				if (m_cCore != null && m_cCore.Clients != null && m_cCore.Clients.Count > 0)
+				{
+					foreach (Client client in m_cCore.Clients)
+					{
+						this.Invoke(new MethodInvoker(delegate ()
+						{
+							this.flpClientContainer.Controls.Add(new ClientBox(client.Online, client.Name));
+						}));
+					}
+				}
+			}
+			finally
+			{
+				mutex.ReleaseMutex();
+			}
 		}
 	}
 }

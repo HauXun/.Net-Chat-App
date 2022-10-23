@@ -122,10 +122,10 @@
 			this.panel1.BackColor = System.Drawing.Color.White;
 			this.panel1.Controls.Add(this.lbOnlineTotal);
 			this.panel1.Controls.Add(this.lbTitle);
-			this.panel1.Location = new System.Drawing.Point(2, 2);
-			this.panel1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 8);
+			this.panel1.Location = new System.Drawing.Point(0, 0);
+			this.panel1.Margin = new System.Windows.Forms.Padding(0, 0, 0, 8);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(242, 53);
+			this.panel1.Size = new System.Drawing.Size(241, 53);
 			this.panel1.TabIndex = 4;
 			// 
 			// lbOnlineTotal
@@ -135,7 +135,7 @@
 			this.lbOnlineTotal.Location = new System.Drawing.Point(0, 37);
 			this.lbOnlineTotal.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lbOnlineTotal.Name = "lbOnlineTotal";
-			this.lbOnlineTotal.Size = new System.Drawing.Size(242, 16);
+			this.lbOnlineTotal.Size = new System.Drawing.Size(241, 16);
 			this.lbOnlineTotal.TabIndex = 2;
 			this.lbOnlineTotal.Text = "Online total: ";
 			// 
@@ -146,7 +146,7 @@
 			this.lbTitle.Location = new System.Drawing.Point(0, 0);
 			this.lbTitle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lbTitle.Name = "lbTitle";
-			this.lbTitle.Size = new System.Drawing.Size(242, 31);
+			this.lbTitle.Size = new System.Drawing.Size(241, 31);
 			this.lbTitle.TabIndex = 1;
 			this.lbTitle.Text = "Server Remote Manager";
 			this.lbTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
