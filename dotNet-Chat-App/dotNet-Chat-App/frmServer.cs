@@ -6,14 +6,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace dotNet_Chat_App
 {
 	public partial class frmServer : Form
 	{
-		private Timer m_msgTimer;
+		private System.Windows.Forms.Timer m_msgTimer;
 		private SCore m_sCore;
+		private static Mutex mutex = new Mutex();
 
 		public frmServer()
 		{
@@ -28,7 +30,7 @@ namespace dotNet_Chat_App
 
 		private void frmServer_Load(object sender, EventArgs e)
 		{
-			m_msgTimer = new Timer();
+			m_msgTimer = new System.Windows.Forms.Timer();
 
 			m_msgTimer.Tick += M_msgTimer_Tick;
 			m_msgTimer.Interval = 250;
@@ -60,22 +62,44 @@ namespace dotNet_Chat_App
 
 		private void ClearClientListContainer()
 		{
-			this.Invoke(new MethodInvoker(delegate ()
+			try
 			{
-				int count = flpClientContainer.Controls.Count;
-				for (int i = count - 1; i > 0; i--)
+				mutex.WaitOne();
+				this.Invoke(new MethodInvoker(delegate ()
 				{
-					this.flpClientContainer.Controls.RemoveAt(i);
-				}
-			}));
+					int count = flpClientContainer.Controls.Count;
+					for (int i = count - 1; i > 0; i--)
+					{
+						this.flpClientContainer.Controls.RemoveAt(i);
+					}
+				}));
+			}
+			finally
+			{
+				mutex.ReleaseMutex();
+			}
 		}
 
-		private void LoadClientList(Client client)
+		private void LoadClientList()
 		{
-			this.Invoke(new MethodInvoker(delegate ()
+			try
 			{
-				this.flpClientContainer.Controls.Add(new ClientBox(client.Online, client.Name));
-			}));
+				mutex.WaitOne();
+				if (m_sCore != null && m_sCore.Clients != null && m_sCore.Clients.Count > 0)
+				{
+					foreach (Client client in m_sCore.Clients)
+					{
+						this.Invoke(new MethodInvoker(delegate ()
+						{
+							this.flpClientContainer.Controls.Add(new ClientBox(client.Online, client.Name));
+						}));
+					}
+				}
+			}
+			finally
+			{
+				mutex.ReleaseMutex();
+			}
 		}
 
 		private void GetClients()

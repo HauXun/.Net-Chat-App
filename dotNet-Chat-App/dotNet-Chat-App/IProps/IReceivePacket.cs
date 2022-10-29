@@ -13,6 +13,7 @@ namespace dotNet_Chat_App.IProps
 		Task<TAPResultPattern<int>> ReceivePacketSizeTask { get; }
 		TAPResultPattern<int> ReceivePacketSizeTaskResult { get; }
 
-		Task<TAPResultPattern> ReceivePacketTask { get; }
+		Task<TAPResultPattern<int>> ReceivePacketTask { get; }
+		TAPResultPattern<int> ReceivePacketTaskResult { get; }
 	}
 }

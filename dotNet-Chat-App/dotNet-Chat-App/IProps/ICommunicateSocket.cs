@@ -11,7 +11,6 @@ namespace dotNet_Chat_App.IProps
 		string UserMsg { get; set; }
 		int OnlineClientCount { get; set; }
 		List<Client> Clients { get; set; }
-		GetLog GetLog { set; }
 
 		bool Closing { get; set; }
 	}

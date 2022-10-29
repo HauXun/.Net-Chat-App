@@ -14,7 +14,6 @@ using System.Net.Sockets;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace dotNet_Chat_App.Core
 {
@@ -35,11 +34,11 @@ namespace dotNet_Chat_App.Core
 
 		private Task<TAPResultPattern<int>> receivePacketSizeTask;
 		private TAPResultPattern<int> receivePacketSizeTaskResult;
+		private Task<TAPResultPattern<int>> receivePacketTask;
+		private TAPResultPattern<int> receivePacketTaskResult;
 
 		private Task<TAPResultPattern<int>> handleSendTask;
 		private TAPResultPattern<int> handleSendTaskResult;
-
-		private Task<TAPResultPattern> receivePacketTask;
 
 		private string m_ipAddress = string.Empty;
 		private int m_port = 8000;
@@ -47,7 +46,6 @@ namespace dotNet_Chat_App.Core
 		private string m_userMsg = string.Empty;
 		private int onlineClientCount;
 		private List<Client> m_clients = new List<Client>();
-		private GetLog m_getLog;
 		private bool m_closing;
 
 		// Receive struct
@@ -55,7 +53,8 @@ namespace dotNet_Chat_App.Core
 		private ReceiveBuffer buffer;
 		private ClientListChanged clientListChanged;
 		private ClearClientListContainer clearClientListContainer;
-		private List<Client> clone;
+		private int sentBytes;
+		private int toSent;
 
 		#endregion
 
@@ -70,11 +69,11 @@ namespace dotNet_Chat_App.Core
 
 		public Task<TAPResultPattern<int>> ReceivePacketSizeTask { get => receivePacketSizeTask; private set { } }
 		public TAPResultPattern<int> ReceivePacketSizeTaskResult { get => receivePacketSizeTaskResult; private set { } }
+		public Task<TAPResultPattern<int>> ReceivePacketTask { get => receivePacketTask; private set { } }
+		public TAPResultPattern<int> ReceivePacketTaskResult { get => receivePacketTaskResult; private set { } }
 
 		public Task<TAPResultPattern<int>> HandleSendTask { get => handleSendTask; private set { } }
 		public TAPResultPattern<int> HandleSendTaskResult { get => handleSendTaskResult; private set { } }
-
-		public Task<TAPResultPattern> ReceivePacketTask { get => receivePacketTask; private set { } }
 
 		public string IpAddress { get => m_ipAddress; set => m_ipAddress = value; }
 		public int Port { get => m_port; set => m_port = value; }
@@ -82,7 +81,6 @@ namespace dotNet_Chat_App.Core
 		public string UserMsg { get => m_userMsg; set => m_userMsg = value; }
 		public int OnlineClientCount { get => onlineClientCount; set => onlineClientCount = value; }
 		public List<Client> Clients { get => m_clients; set => m_clients = value; }
-		public GetLog GetLog { private get => m_getLog; set => m_getLog = value; }
 
 		public bool Closing
 		{
@@ -105,7 +103,6 @@ namespace dotNet_Chat_App.Core
 		public ClearClientListContainer ClearClientListContainer { get => this.clearClientListContainer; set => clearClientListContainer = value; }
 
 		private static ILogger logger = new GUILogger();
-		private Tuple<byte[], Socket> data;
 
 		#endregion
 
@@ -139,18 +136,19 @@ namespace dotNet_Chat_App.Core
 		{
 			var receiveResult = await socket.ReceiveAsyncz
 				(lenBuffer, 0, lenBuffer.Length, SocketFlags.None).ConfigureAwait(false);
+
 			var bytesReceived = receiveResult.Value;
 
-			if (bytesReceived == 0)
+			if (receiveResult.Failure)
 			{
 				if (m_closing)
 					return TAPResultPattern.Fail<int>("Error reading packet from client, server was close");
 
 				if (bytesReceived <= 0)
-					return TAPResultPattern.Fail<int>("Unable to receive packet from client, the client may have been closed");
+					return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
 
 				if (bytesReceived != 4)
-					return TAPResultPattern.Fail<int>("Error reading packet from client, packet format does not match");
+					return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, format does not match");
 			}
 
 			return TAPResultPattern.Ok(BitConverter.ToInt32(lenBuffer, 0));
@@ -160,7 +158,7 @@ namespace dotNet_Chat_App.Core
 		/// Create a Task that finishes receiving the packet
 		/// </summary>
 		/// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
-		public async Task<TAPResultPattern> ReceivePacketAsync(Socket socket)
+		public async Task<TAPResultPattern<int>> ReceivePacketAsync(Socket socket)
 		{
 			var receiveResult = await socket.ReceiveAsyncz
 				(buffer.Buffer, 0, buffer.Buffer.Length, SocketFlags.None).ConfigureAwait(false);
@@ -168,7 +166,9 @@ namespace dotNet_Chat_App.Core
 			var bytesReceived = receiveResult.Value;
 
 			if (bytesReceived <= 0)
-				m_systemMsg += "Unable to receive packet from client, the client may have been closed";
+			{
+				return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+			}
 
 			buffer.BufferStream.Write(buffer.Buffer, 0, bytesReceived);
 			buffer.ToReceive -= bytesReceived;
@@ -180,7 +180,7 @@ namespace dotNet_Chat_App.Core
 				await ReceivePacketAsync(socket).ConfigureAwait(false);
 			}
 
-			return TAPResultPattern.Ok();
+			return TAPResultPattern.Ok(bytesReceived);
 		}
 
 		/// <summary>
@@ -188,61 +188,70 @@ namespace dotNet_Chat_App.Core
 		/// </summary>
 		/// <param name="data">Data will be send</param>
 		/// <returns>The byte number have been sent</returns>
-		public async Task<TAPResultPattern<int>> SendPacketAsync(object args)
+		public async Task<TAPResultPattern<int>> SendPacketAsync(byte[] data, Socket socket)
 		{
-			data = args as Tuple<byte[], Socket>;
-			var sendSizeResult = await data.Item2.SendWithTimeoutAsyncz(
-				BitConverter.GetBytes(data.Item1.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
+			var sendSizeResult = await socket.SendWithTimeoutAsyncz(
+				BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
 
 			var bytesReceived = sendSizeResult.Value;
 
-			if (bytesReceived == 0)
+			if (sendSizeResult.Failure)
 			{
 				if (m_closing)
 					return TAPResultPattern.Fail<int>("Error reading packet, client was close");
 
-				if (sendSizeResult.Value <= 0)
-					return TAPResultPattern.Fail<int>("Unable to receive packet from client");
+				if (bytesReceived <= 0)
+					return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
 
 				if (bytesReceived != 4)
-					return TAPResultPattern.Fail<int>("Error reading packet from client, packet format does not match");
+					return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, format does not match");
 			}
 
-			if (sendSizeResult.Success)
+			TAPResultPattern<int> sendResult = null;
+
+			if (data.Length >= 1024)
 			{
-				var sendResult = await data.Item2.SendWithTimeoutAsyncz(data.Item1, 0, data.Item1.Length, 0, SendTimeoutMs).ConfigureAwait(false);
-
-				bytesReceived = sendResult.Value;
-
-				if (sendResult.Failure)
+				sentBytes = 0;
+				toSent = 1024;
+				while ((data.Length - sentBytes) > 0)
 				{
-					// m_systemMsg += $"\r\n{sendResult.Error}";
-					logger.WriteLogEntry(sendResult.Error, ref m_systemMsg);
-				}
+					sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
+					bytesReceived = sendResult.Value;
 
-				if (bytesReceived == 0)
-				{
-					if (m_closing)
-						return TAPResultPattern.Fail<int>("Error reading packet, client was close");
+					if (sendResult.Failure)
+					{
+						if (m_closing)
+							return TAPResultPattern.Fail<int>("Error reading packet, server was close");
 
-					if (sendSizeResult.Value <= 0)
-						return TAPResultPattern.Fail<int>("Unable to receive packet from client");
+						if (bytesReceived <= 0)
+							return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
 
-					if (bytesReceived != 4)
-						return TAPResultPattern.Fail<int>("Error reading packet from client, packet format does not match");
+						if (bytesReceived != 4)
+							return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, packet format does not match");
+					}
+					sentBytes += 1024;
+					toSent = data.Length - sentBytes;
 				}
 			}
 			else
 			{
-				// m_systemMsg += $"\r\n{sendSizeResult.Error}";
-				logger.WriteLogEntry(sendSizeResult.Error, ref m_systemMsg);
-			}
-			return TAPResultPattern.Ok(bytesReceived);
-		}
+				sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
+				bytesReceived = sendResult.Value;
 
-		public Task<TAPResultPattern<int>> SendPacketAsync(byte[] data)
-		{
-			return null;
+				if (sendResult.Failure)
+				{
+					if (m_closing)
+						return TAPResultPattern.Fail<int>("Error reading packet, server was close");
+
+					if (bytesReceived <= 0)
+						return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+
+					if (bytesReceived != 4)
+						return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, packet format does not match");
+				}
+			}
+
+			return TAPResultPattern.Ok(bytesReceived);
 		}
 
 		#endregion
@@ -298,6 +307,7 @@ namespace dotNet_Chat_App.Core
 				m_thread = new Thread(new ThreadStart(Listen));
 				m_thread.IsBackground = true;
 				m_thread.Start();
+
 				// m_systemMsg += "\r\nServer listener started";
 				logger.WriteLogEntry("Server listener started", ref m_systemMsg);
 			}
@@ -337,7 +347,7 @@ namespace dotNet_Chat_App.Core
 		{
 			try
 			{
-				AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(10));
+				AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(20));
 				while (m_listener != null)
 				{
 					// The call to AcceptConnectionTask is not awaited, therefore this method
@@ -348,15 +358,17 @@ namespace dotNet_Chat_App.Core
 
 					if (acceptResult.Failure)
 					{
-						m_systemMsg += $"{acceptResult.Error}";
-						throw new Exception("There was an error connecting to the server/accepting connection from the client");
+						logger.WriteLogEntry($"{acceptResult.Error}", ref m_systemMsg);
+						logger.WriteLogEntry("There was an error connecting to the server/accepting connection from the client", ref m_systemMsg);
+
+						//m_systemMsg += $"{acceptResult.Error}";
+						//throw new Exception("There was an error connecting to the server/accepting connection from the client");
 					}
 
 					// Store the transfer socket if ServerAcceptTask was successful
 					m_lastClient = acceptResult.Value;
 
 					m_clientSockets.Add(m_lastClient);
-
 
 					Thread handle = new Thread(WaitForHandle);
 
@@ -379,7 +391,7 @@ namespace dotNet_Chat_App.Core
 		{
 			foreach (Socket s in m_clientSockets.ToList())
 			{
-				if (!s.Connected)
+				if (s != null && !s.Connected)
 				{
 					m_clientSockets.Remove(s);
 					receivePacketSizeTask = null;
@@ -397,11 +409,8 @@ namespace dotNet_Chat_App.Core
 			Socket socket = token as Socket;
 			//await SendAll(new TransactionPacket((int)DoActions.Todo.PushMessage, "Connect accepted"));
 
-
 			m_systemMsg += $"\r\n\r\n{(socket.RemoteEndPoint as IPEndPoint).Port} Connected";
 			// logger.WriteLogEntry($"\r\n{(socket.RemoteEndPoint as IPEndPoint).Port} Connected", m_getLog);
-
-			receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
 
 			while (m_listener != null)
 			{
@@ -409,45 +418,36 @@ namespace dotNet_Chat_App.Core
 				{
 					if (m_closing) return;
 
-					if (!socket.Connected && receivePacketSizeTask == null)
-						receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
-
+					receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
 					receivePacketSizeTaskResult = await receivePacketSizeTask.ConfigureAwait(false);
 
-					if (receivePacketSizeTaskResult.Success && socket.Connected)
+					if (receivePacketSizeTaskResult.Failure)
 					{
-						buffer = new ReceiveBuffer(receivePacketSizeTaskResult.Value);
-
-						receivePacketTask = Task.Run(() => ReceivePacketAsync(socket));
-						await receivePacketTask.ConfigureAwait(false);
-
-						buffer.BufferStream.Position = 0;
-
-						TransactionPacket packet = (TransactionPacket)FragmentationServices.
-							Deserialize(buffer.BufferStream.ToArray());
-
-						HandleAction(packet, socket);
-
-						buffer.Dispose();
-					}
-					else
-					{
-						if (!string.IsNullOrEmpty(receivePacketSizeTaskResult.Error))
-							// m_systemMsg += $"\r\n{receivePacketSizeTaskResult.Error}";
-							logger.WriteLogEntry(receivePacketSizeTaskResult.Error, ref m_systemMsg);
-						if (!socket.Connected)
-						{
-							ClearDisconnectClients();
-						}
-					}
-
-					if (socket.Connected)
-						receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
-					else
-					{
+						logger.WriteLogEntry(receivePacketSizeTaskResult.Error, ref m_systemMsg);
 						ClearDisconnectClients();
 						return;
 					}
+
+					buffer = new ReceiveBuffer(receivePacketSizeTaskResult.Value);
+
+					receivePacketTask = Task.Run(() => ReceivePacketAsync(socket));
+					receivePacketTaskResult = await receivePacketTask.ConfigureAwait(false);
+
+					if (receivePacketTaskResult.Failure)
+					{
+						logger.WriteLogEntry(receivePacketTaskResult.Error, ref m_systemMsg);
+						ClearDisconnectClients();
+						return;
+					}
+
+					buffer.BufferStream.Position = 0;
+
+					TransactionPacket packet = (TransactionPacket)FragmentationServices.
+						Deserialize(buffer.BufferStream.ToArray());
+
+					HandleAction(packet, socket);
+
+					buffer.Dispose();
 				}
 				catch (SocketException ex)
 				{
@@ -547,34 +547,21 @@ namespace dotNet_Chat_App.Core
 		/// Send the packet to the clients
 		/// </summary>
 		/// <param name="packet">Packet will be send</param>
-		public async Task SendPacket(TransactionPacket packet, Socket socket)
+		public async Task SendPacket(byte[] packet, Socket socket)
 		{
-			if (handleSendTask == null)
-			{
-				handleSendTask = Task.Run(() =>
-				SendPacketAsync(Tuple.Create(FragmentationServices.Serialize(packet), socket)));
-			}
+			handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
 			handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
 
-			if (handleSendTaskResult.Success)
+			if (handleSendTaskResult.Failure)
 			{
-				handleSendTask = Task.Run(() =>
-				SendPacketAsync(Tuple.Create(FragmentationServices.Serialize(packet), socket)));
+				logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
+				return;
 			}
-			else
-			{
-				m_systemMsg += handleSendTaskResult.Error;
-			}
-		}
-
-		public Task SendPacket(TransactionPacket packet)
-		{
-			return null;
 		}
 
 		public Task SendAll(TransactionPacket packet)
 		{
-			return Task.WhenAll(m_clientSockets.Select(x => SendPacket(packet, x)));
+			return Task.WhenAll(m_clientSockets.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
 		}
 
 		private Task SendClients(Client client)
@@ -589,10 +576,7 @@ namespace dotNet_Chat_App.Core
 
 		private void GetClients()
 		{
-			//m_clients = ClientBLL.Instance.GetClients();
-			m_clients.Add(new Client() { ID = 1, Name = "Hau xun", Online = false });
-			m_clients.Add(new Client() { ID = 2, Name = "loc", Online = false });
-			m_clients.Add(new Client() { ID = 3, Name = "aga", Online = false });
+			m_clients = ClientBLL.Instance.GetClients();
 		}
 
 		private async void PushState()
@@ -603,13 +587,18 @@ namespace dotNet_Chat_App.Core
 
 			foreach (Client client in m_clients)
 			{
+				if (client != null && (client.M_Client != null && !client.M_Client.Connected) || (client.M_Client == null))
+					client.Online = false;
+
 				if (client.Online)
 					onlineClientCount++;
 
 				await SendClients(client);
-				await Task.Delay(100);
-				await Task.Run(() => this.ClientListChanged?.Invoke(client));
+				await Task.Delay(TimeSpan.FromMilliseconds(0.5));
 			}
+
+			await SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, "sended"));
+			await Task.Run(() => this.ClientListChanged?.Invoke());
 		}
 	}
 }

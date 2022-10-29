@@ -11,5 +11,5 @@ namespace dotNet_Chat_App.IProps
     {
         Task<TAPResultPattern<int>> HandleSendTask { get; }
         TAPResultPattern<int> HandleSendTaskResult { get; }
-    }
+	}
 }
