@@ -12,7 +12,7 @@
         }
         public enum MessageType
         {
-            ServerSendAll = 10,
+            ServerSendAll = 100,
             ServerToSingleClient,
             ClientToServer,
             ClientToClient,

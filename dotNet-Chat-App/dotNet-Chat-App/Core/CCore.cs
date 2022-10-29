@@ -40,6 +40,7 @@ namespace dotNet_Chat_App.Core
 		private string m_userMsg = string.Empty;
 		private int onlineClientCount;
 		private List<Client> m_clients = new List<Client>();
+		private bool p2p;
 		private bool m_closing;
 
 		// Receive struct
@@ -73,8 +74,9 @@ namespace dotNet_Chat_App.Core
 		public string UserMsg { get => m_userMsg; set => m_userMsg = value; }
 		public int OnlineClientCount { get => onlineClientCount; set => onlineClientCount = value; }
 		public List<Client> Clients { get => m_clients; set => m_clients = value; }
+        public bool P2P { get => p2p; set => p2p = value; }
 
-		public bool Closing
+        public bool Closing
 		{
 			get => m_closing;
 			set
@@ -123,13 +125,13 @@ namespace dotNet_Chat_App.Core
 			if (bytesReceived == 0)
 			{
 				if (m_closing)
-					return TAPResultPattern.Fail<int>($"Error reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+					return TAPResultPattern.Fail<int>($"\r\nError reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 				if (bytesReceived <= 0)
-					return TAPResultPattern.Fail<int>($"Unable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+					return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 				if (bytesReceived != 4)
-					return TAPResultPattern.Fail<int>("Error reading packet from endpoint, format does not match");
+					return TAPResultPattern.Fail<int>("\r\nError reading packet from endpoint, format does not match");
 			}
 
 			return TAPResultPattern.Ok(BitConverter.ToInt32(lenBuffer, 0));
@@ -148,7 +150,7 @@ namespace dotNet_Chat_App.Core
 
 			if (bytesReceived <= 0)
 			{
-				return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the endpoint may have been closed");
+				return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet from {socket.RemoteEndPoint}, the endpoint may have been closed");
 			}
 
 			buffer.BufferStream.Write(buffer.Buffer, 0, bytesReceived);
@@ -179,13 +181,13 @@ namespace dotNet_Chat_App.Core
 			if (sendSizeResult.Failure)
 			{
 				if (m_closing)
-					return TAPResultPattern.Fail<int>($"Error reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+					return TAPResultPattern.Fail<int>($"\r\nError reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 				if (bytesReceived <= 0)
-					return TAPResultPattern.Fail<int>($"Unable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+					return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 				if (bytesReceived != 4)
-					return TAPResultPattern.Fail<int>("Error reading packet from endpoint, format does not match");
+					return TAPResultPattern.Fail<int>("\r\nError reading packet from endpoint, format does not match");
 			}
 
 			TAPResultPattern<int> sendResult = null;
@@ -202,13 +204,13 @@ namespace dotNet_Chat_App.Core
 					if (sendResult.Failure)
 					{
 						if (m_closing)
-							return TAPResultPattern.Fail<int>($"Error reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+							return TAPResultPattern.Fail<int>($"\r\nError reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 						if (bytesReceived <= 0)
-							return TAPResultPattern.Fail<int>($"Unable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+							return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 						if (bytesReceived != 4)
-							return TAPResultPattern.Fail<int>("Error reading packet from endpoint, packet format does not match");
+							return TAPResultPattern.Fail<int>("\r\nError reading packet from endpoint, packet format does not match");
 					}
 					sentBytes += 1024;
 					toSent = data.Length - sentBytes;
@@ -222,13 +224,13 @@ namespace dotNet_Chat_App.Core
 				if (sendResult.Failure)
 				{
 					if (m_closing)
-						return TAPResultPattern.Fail<int>($"Error reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+						return TAPResultPattern.Fail<int>($"\r\nError reading packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 					if (bytesReceived <= 0)
-						return TAPResultPattern.Fail<int>($"Unable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
+						return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet, may have lost connection with the endpoint {socket.RemoteEndPoint}");
 
 					if (bytesReceived != 4)
-						return TAPResultPattern.Fail<int>("Error reading packet from endpoint, packet format does not match");
+						return TAPResultPattern.Fail<int>("\r\nError reading packet from endpoint, packet format does not match");
 				}
 			}
 
@@ -249,11 +251,9 @@ namespace dotNet_Chat_App.Core
 			}
 
 			m_client = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-			m_client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, false);
 
 			// With another socket, connect to the bound socket and await the result (ClientConnectTask)
-			connectResult = await m_client.ConnectWithTimeoutAsyncz(ipAddress.ToString(), m_port,
-					ConnectTimeoutMs).ConfigureAwait(false);
+			connectResult = await m_client.ConnectAsyncz(ipAddress.ToString(), m_port).ConfigureAwait(false);
 
 			if (connectResult.Failure)
 			{
@@ -287,17 +287,17 @@ namespace dotNet_Chat_App.Core
 			catch (ArgumentNullException ex)
 			{
 				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 			catch (SocketException ex)
 			{
 				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 			catch (Exception ex)
 			{
 				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 		}
 
@@ -317,7 +317,7 @@ namespace dotNet_Chat_App.Core
 		public async void WaitForHandle(object token = null)
 		{
 			Socket socket = token as Socket;
-			logger.WriteLogEntry("There is a connection incoming", ref m_systemMsg);
+			logger.WriteLogEntry("\r\nThere is a connection incoming", ref m_systemMsg);
 			//m_systemMsg += $"\r\n{"There is a connection incoming"}";
 
 			try
@@ -359,12 +359,12 @@ namespace dotNet_Chat_App.Core
 			catch (ArgumentNullException ex)
 			{
 				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 			catch (SocketException ex)
 			{
 				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 			catch (SerializationException ex)
 			{
@@ -374,12 +374,12 @@ namespace dotNet_Chat_App.Core
 				receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
 
 				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 			catch (Exception ex)
 			{
 				//m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
+				logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
 			}
 		}
 
@@ -396,27 +396,30 @@ namespace dotNet_Chat_App.Core
 				case (int)DoActions.Todo.PushLog:
 					break;
 				case (int)DoActions.Todo.PushStatus:
-					if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("clear"))
+					if (!p2p)
 					{
-						m_clients.Clear();
-						await Task.Run(() => this.ClearClientListContainer?.Invoke());
-					}
+                        if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("clear"))
+                        {
+                            m_clients.Clear();
+                            await Task.Run(() => this.ClearClientListContainer?.Invoke());
+                        }
 
-					if (typeof(object[]) == packet.Value.GetType())
-					{
-						object[] param = packet.Value as object[];
-						m_clients.Add(new Client()
-						{
-							ID = Convert.ToInt32(param[0]),
-							Name = param[1].ToString(),
-							Online = (bool)param[2]
-						});
-					}
+                        if (typeof(object[]) == packet.Value.GetType())
+                        {
+                            object[] param = packet.Value as object[];
+                            m_clients.Add(new Client()
+                            {
+                                ID = Convert.ToInt32(param[0]),
+                                Name = param[1].ToString(),
+                                Online = (bool)param[2]
+                            });
+                        }
 
-					if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("sended"))
-					{
-						await Task.Run(() => this.ClientListChanged?.Invoke());
-					}
+                        if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("sended"))
+                        {
+                            await Task.Run(() => this.ClientListChanged?.Invoke());
+                        }
+                    }
 					break;
 				case (int)DoActions.Todo.PushMessage:
 					m_userMsg += $"\r\nEndpoint: {packet.Value}";
@@ -428,7 +431,8 @@ namespace dotNet_Chat_App.Core
 				case (int)DoActions.MessageType.ServerSendAll:
 					break;
 				case (int)DoActions.MessageType.ServerToSingleClient:
-					break;
+                    m_userMsg += $"\r\nEndpoint: {packet.Value}";
+                    break;
 				case (int)DoActions.MessageType.ClientToServer:
 					break;
 				case (int)DoActions.MessageType.ClientToClient:
@@ -447,15 +451,25 @@ namespace dotNet_Chat_App.Core
 		/// </summary>
 		/// <param name="packet">Packet will be send</param>
 		public async Task SendPacket(byte[] packet, Socket socket)
-		{
-			handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
-			handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
-
-			if (handleSendTaskResult.Failure)
+        {
+			try
 			{
-				logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
-				return;
+				if (socket != null && socket.Connected)
+				{
+					handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
+					handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
+
+					if (handleSendTaskResult.Failure)
+					{
+						logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
+						return;
+					}
+				}
 			}
-		}
+			finally
+			{
+				// SendOffMessageToDatabase
+			}
+        }
 	}
 }

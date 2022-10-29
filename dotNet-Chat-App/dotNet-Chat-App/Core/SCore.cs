@@ -17,588 +17,606 @@ using System.Threading.Tasks;
 
 namespace dotNet_Chat_App.Core
 {
-	public class SCore : IActions, ITodo, ICommunicateSocket, ISCommunicate, IReceivePacket, ISendPacket, ITranspotDefine, IDelegateDefined
-	{
-		const int ReceiveTimeoutMs = 3000;
-		const int SendTimeoutMs = 3000;
-
-		#region Properties
-
-		private Socket m_listener;
-		private Thread m_thread;
-		private Socket m_lastClient;
-		private List<Socket> m_clientSockets = new List<Socket>();
-
-		private Task<TAPResultPattern<Socket>> acceptTask;
-		private TAPResultPattern<Socket> acceptResult;
-
-		private Task<TAPResultPattern<int>> receivePacketSizeTask;
-		private TAPResultPattern<int> receivePacketSizeTaskResult;
-		private Task<TAPResultPattern<int>> receivePacketTask;
-		private TAPResultPattern<int> receivePacketTaskResult;
-
-		private Task<TAPResultPattern<int>> handleSendTask;
-		private TAPResultPattern<int> handleSendTaskResult;
-
-		private string m_ipAddress = string.Empty;
-		private int m_port = 8000;
-		private string m_systemMsg = string.Empty;
-		private string m_userMsg = string.Empty;
-		private int onlineClientCount;
-		private List<Client> m_clients = new List<Client>();
-		private bool m_closing;
-
-		// Receive struct
-		private byte[] lenBuffer;
-		private ReceiveBuffer buffer;
-		private ClientListChanged clientListChanged;
-		private ClearClientListContainer clearClientListContainer;
-		private int sentBytes;
-		private int toSent;
-
-		#endregion
-
-		#region EncapsulationProperties
-
-		public Socket Listener { get => m_listener; private set { } }
-		public Thread Thread { get => m_thread; private set { } }
-		public Socket LastClient { get => m_lastClient; private set { } }
-		public List<Socket> ClientSockets { get => m_clientSockets; private set { } }
-		public Task<TAPResultPattern<Socket>> AcceptTask { get => acceptTask; private set { } }
-		public TAPResultPattern<Socket> AcceptResult { get => acceptResult; private set { } }
-
-		public Task<TAPResultPattern<int>> ReceivePacketSizeTask { get => receivePacketSizeTask; private set { } }
-		public TAPResultPattern<int> ReceivePacketSizeTaskResult { get => receivePacketSizeTaskResult; private set { } }
-		public Task<TAPResultPattern<int>> ReceivePacketTask { get => receivePacketTask; private set { } }
-		public TAPResultPattern<int> ReceivePacketTaskResult { get => receivePacketTaskResult; private set { } }
-
-		public Task<TAPResultPattern<int>> HandleSendTask { get => handleSendTask; private set { } }
-		public TAPResultPattern<int> HandleSendTaskResult { get => handleSendTaskResult; private set { } }
-
-		public string IpAddress { get => m_ipAddress; set => m_ipAddress = value; }
-		public int Port { get => m_port; set => m_port = value; }
-		public string SystemMsg { get => m_systemMsg; set => m_systemMsg = value; }
-		public string UserMsg { get => m_userMsg; set => m_userMsg = value; }
-		public int OnlineClientCount { get => onlineClientCount; set => onlineClientCount = value; }
-		public List<Client> Clients { get => m_clients; set => m_clients = value; }
-
-		public bool Closing
-		{
-			get => m_closing;
-			set
-			{
-				m_closing = value;
-				if (value)
-				{
-					Close();
-					buffer.Dispose();
-				}
-			}
-		}
-
-		public byte[] LenBuffer { get => lenBuffer; private set { } }
-		public ReceiveBuffer Buffer { get => buffer; private set { } }
-
-		public ClientListChanged ClientListChanged { get => this.clientListChanged; set => clientListChanged = value; }
-		public ClearClientListContainer ClearClientListContainer { get => this.clearClientListContainer; set => clearClientListContainer = value; }
-
-		private static ILogger logger = new GUILogger();
-
-		#endregion
-
-		/// <summary>
-		/// Constructor
-		/// </summary>
-		public SCore()
-		{
-			lenBuffer = new byte[4];
-			buffer = new ReceiveBuffer(0);
-			Init();
-			GetClients();
-		}
-
-		#region Asynchronous Behavior
-
-		/// <summary>
-		/// Create a Task that accept the next incoming connection (ServerAcceptTask)
-		/// </summary>
-		/// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
-		async Task<TAPResultPattern<Socket>> AcceptConnectionTask()
-		{
-			return await m_listener.AcceptAsyncz().ConfigureAwait(false);
-		}
-
-		/// <summary>
-		/// Create a Task that receive the size of the packet before it finishes receiving the packet
-		/// </summary>
-		/// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
-		public async Task<TAPResultPattern<int>> ReceivePacketSizeAsync(Socket socket)
-		{
-			var receiveResult = await socket.ReceiveAsyncz
-				(lenBuffer, 0, lenBuffer.Length, SocketFlags.None).ConfigureAwait(false);
-
-			var bytesReceived = receiveResult.Value;
-
-			if (receiveResult.Failure)
-			{
-				if (m_closing)
-					return TAPResultPattern.Fail<int>("Error reading packet from client, server was close");
-
-				if (bytesReceived <= 0)
-					return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
-
-				if (bytesReceived != 4)
-					return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, format does not match");
-			}
-
-			return TAPResultPattern.Ok(BitConverter.ToInt32(lenBuffer, 0));
-		}
-
-		/// <summary>
-		/// Create a Task that finishes receiving the packet
-		/// </summary>
-		/// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
-		public async Task<TAPResultPattern<int>> ReceivePacketAsync(Socket socket)
-		{
-			var receiveResult = await socket.ReceiveAsyncz
-				(buffer.Buffer, 0, buffer.Buffer.Length, SocketFlags.None).ConfigureAwait(false);
-
-			var bytesReceived = receiveResult.Value;
-
-			if (bytesReceived <= 0)
-			{
-				return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
-			}
-
-			buffer.BufferStream.Write(buffer.Buffer, 0, bytesReceived);
-			buffer.ToReceive -= bytesReceived;
-
-			if (buffer.ToReceive > 0)
-			{
-				Array.Clear(buffer.Buffer, 0, buffer.Buffer.Length);
-
-				await ReceivePacketAsync(socket).ConfigureAwait(false);
-			}
-
-			return TAPResultPattern.Ok(bytesReceived);
-		}
-
-		/// <summary>
-		/// Createa Task that start sending the data to the endpoint
-		/// </summary>
-		/// <param name="data">Data will be send</param>
-		/// <returns>The byte number have been sent</returns>
-		public async Task<TAPResultPattern<int>> SendPacketAsync(byte[] data, Socket socket)
-		{
-			var sendSizeResult = await socket.SendWithTimeoutAsyncz(
-				BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
-
-			var bytesReceived = sendSizeResult.Value;
-
-			if (sendSizeResult.Failure)
-			{
-				if (m_closing)
-					return TAPResultPattern.Fail<int>("Error reading packet, client was close");
-
-				if (bytesReceived <= 0)
-					return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
-
-				if (bytesReceived != 4)
-					return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, format does not match");
-			}
-
-			TAPResultPattern<int> sendResult = null;
-
-			if (data.Length >= 1024)
-			{
-				sentBytes = 0;
-				toSent = 1024;
-				while ((data.Length - sentBytes) > 0)
-				{
-					sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
-					bytesReceived = sendResult.Value;
-
-					if (sendResult.Failure)
-					{
-						if (m_closing)
-							return TAPResultPattern.Fail<int>("Error reading packet, server was close");
-
-						if (bytesReceived <= 0)
-							return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
-
-						if (bytesReceived != 4)
-							return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, packet format does not match");
-					}
-					sentBytes += 1024;
-					toSent = data.Length - sentBytes;
-				}
-			}
-			else
-			{
-				sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
-				bytesReceived = sendResult.Value;
-
-				if (sendResult.Failure)
-				{
-					if (m_closing)
-						return TAPResultPattern.Fail<int>("Error reading packet, server was close");
-
-					if (bytesReceived <= 0)
-						return TAPResultPattern.Fail<int>($"Unable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
-
-					if (bytesReceived != 4)
-						return TAPResultPattern.Fail<int>($"Error reading packet from {socket.RemoteEndPoint}, packet format does not match");
-				}
-			}
-
-			return TAPResultPattern.Ok(bytesReceived);
-		}
-
-		#endregion
-
-		/// <summary>
-		/// Initialize and bind socket connect
-		/// </summary>
-		public void Init()
-		{
-			string ipAddress = m_ipAddress;
-			if (string.IsNullOrEmpty(ipAddress))
-			{
-				ipAddress = IPServices.GetIPAddress();
-			}
-
-			IPAddress ipa = IPAddress.Parse(ipAddress);
-
-			m_listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
-			m_listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-
-			// Bind a socket to a local TCP port and Listen for incoming connections
-			m_listener.Bind(new IPEndPoint(ipa, m_port));
-
-			StartListening();
-		}
-
-		/// <summary>
-		/// Close the server and the connection comes from the clients
-		/// </summary>
-		public void Close()
-		{
-			m_listener?.Close();
-
-			foreach (Socket clientSocket in m_clientSockets)
-			{
-				clientSocket.Close();
-			}
-
-			m_lastClient?.Close();
-
-			m_listener = null;
-			m_lastClient = null;
-			m_clientSockets = null;
-		}
-
-		/// <summary>
-		/// Prepare for start listen from another thread
-		/// </summary>
-		public void StartListening()
-		{
-			try
-			{
-				m_thread = new Thread(new ThreadStart(Listen));
-				m_thread.IsBackground = true;
-				m_thread.Start();
-
-				// m_systemMsg += "\r\nServer listener started";
-				logger.WriteLogEntry("Server listener started", ref m_systemMsg);
-			}
-			catch (Exception ex)
-			{
-				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-			}
-		}
-
-		/// <summary>
-		/// Listen for incoming connections from the client
-		/// </summary>
-		public void Listen()
-		{
-			try
-			{
-				m_listener.Listen(-1);
-
-				ThreadPool.QueueUserWorkItem(Worker, null);
-			}
-			catch (Exception ex)
-			{
-				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-				m_thread.Interrupt();
-				m_thread.Abort();
-				StartListening();
-			}
-		}
-
-		/// <summary>
-		/// Continuous listening for incoming connections from the client
-		/// </summary>
-		/// <param name="token">Token as client connection</param>
-		public async void Worker(object token = null)
-		{
-			try
-			{
-				AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(20));
-				while (m_listener != null)
-				{
-					// The call to AcceptConnectionTask is not awaited, therefore this method
-					// continues executing
-					acceptTask = Task.Run(AcceptConnectionTask);
-					// Await the result of the ServerAcceptTask
-					acceptResult = await acceptTask.ConfigureAwait(false);
-
-					if (acceptResult.Failure)
-					{
-						logger.WriteLogEntry($"{acceptResult.Error}", ref m_systemMsg);
-						logger.WriteLogEntry("There was an error connecting to the server/accepting connection from the client", ref m_systemMsg);
-
-						//m_systemMsg += $"{acceptResult.Error}";
-						//throw new Exception("There was an error connecting to the server/accepting connection from the client");
-					}
-
-					// Store the transfer socket if ServerAcceptTask was successful
-					m_lastClient = acceptResult.Value;
-
-					m_clientSockets.Add(m_lastClient);
-
-					Thread handle = new Thread(WaitForHandle);
-
-					handle.IsBackground = true;
-					handle.Start(m_lastClient);
-					handle.Join();
-				}
-			}
-			catch (Exception ex)
-			{
-				// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-				logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-			}
-		}
-
-		/// <summary>
-		/// Remove disconnected sockets from the list
-		/// </summary>
-		private void ClearDisconnectClients()
-		{
-			foreach (Socket s in m_clientSockets.ToList())
-			{
-				if (s != null && !s.Connected)
-				{
-					m_clientSockets.Remove(s);
-					receivePacketSizeTask = null;
-					receivePacketTask = null;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Handling received connections
-		/// </summary>
-		/// <param name="token">Client socket</param>
-		public async void WaitForHandle(object token = null)
-		{
-			Socket socket = token as Socket;
-			//await SendAll(new TransactionPacket((int)DoActions.Todo.PushMessage, "Connect accepted"));
-
-			m_systemMsg += $"\r\n\r\n{(socket.RemoteEndPoint as IPEndPoint).Port} Connected";
-			// logger.WriteLogEntry($"\r\n{(socket.RemoteEndPoint as IPEndPoint).Port} Connected", m_getLog);
-
-			while (m_listener != null)
-			{
-				try
-				{
-					if (m_closing) return;
-
-					receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
-					receivePacketSizeTaskResult = await receivePacketSizeTask.ConfigureAwait(false);
-
-					if (receivePacketSizeTaskResult.Failure)
-					{
-						logger.WriteLogEntry(receivePacketSizeTaskResult.Error, ref m_systemMsg);
-						ClearDisconnectClients();
-						return;
-					}
-
-					buffer = new ReceiveBuffer(receivePacketSizeTaskResult.Value);
-
-					receivePacketTask = Task.Run(() => ReceivePacketAsync(socket));
-					receivePacketTaskResult = await receivePacketTask.ConfigureAwait(false);
-
-					if (receivePacketTaskResult.Failure)
-					{
-						logger.WriteLogEntry(receivePacketTaskResult.Error, ref m_systemMsg);
-						ClearDisconnectClients();
-						return;
-					}
-
-					buffer.BufferStream.Position = 0;
-
-					TransactionPacket packet = (TransactionPacket)FragmentationServices.
-						Deserialize(buffer.BufferStream.ToArray());
-
-					HandleAction(packet, socket);
-
-					buffer.Dispose();
-				}
-				catch (SocketException ex)
-				{
-					switch (ex.SocketErrorCode)
-					{
-						case SocketError.ConnectionAborted:
-						case SocketError.ConnectionReset:
-							// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-							logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-							break;
-					}
-				}
-				catch (ObjectDisposedException ex)
-				{
-					// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-					logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-				}
-				catch (IOException ex)
-				{
-					// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-					logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-				}
-				catch (SerializationException ex)
-				{
-					if (m_listener == null || m_closing)
-						return;
-
-					receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
-
-					// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-					logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-				}
-				catch (Exception ex)
-				{
-					// m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
-					logger.WriteLogEntry(ex.Message, ref m_systemMsg);
-				}
-			}
-		}
-
-		/// <summary>
-		/// Handling received actions 
-		/// </summary>
-		/// <param name="packet">Packet will be receive</param>
-		public void HandleAction(TransactionPacket packet, Socket socket)
-		{
-			switch (packet.Todo)
-			{
-				case (int)DoActions.Todo.PushLog:
-					object[] param = packet.Value as object[];
-					m_userMsg += $"\r\n{param[1]} was logging";
-
-					foreach (Socket s in m_clientSockets)
-					{
-						if (s != null && s.Connected && socket != null && socket.Connected && s.RemoteEndPoint == socket.RemoteEndPoint)
-						{
-							m_clients.ForEach(x =>
-							{
-								if (x.ID == Convert.ToInt32(param[0]))
-								{
-									x.Online = true;
-									x.M_Client = s;
-								}
-							});
-						}
-					}
-
-					PushState();
-					break;
-				case (int)DoActions.Todo.PushMessage:
-					m_userMsg += $"\r\n{packet.Value}";
-					break;
-				case (int)DoActions.Todo.PushStatus:
-					break;
-				case (int)DoActions.Todo.PushOfflineMessage:
-					break;
-				case (int)DoActions.Todo.PushOfflineGroupMessage:
-					break;
-				case (int)DoActions.MessageType.ServerSendAll:
-					break;
-				case (int)DoActions.MessageType.ServerToSingleClient:
-					break;
-				case (int)DoActions.MessageType.ClientToServer:
-					break;
-				case (int)DoActions.MessageType.ClientToClient:
-					break;
-				case (int)DoActions.MessageType.OfflineSending:
-					break;
-				case (int)DoActions.MessageType.ChatToGroup:
-					break;
-				default:
-					break;
-			}
-		}
-
-		/// <summary>
-		/// Send the packet to the clients
-		/// </summary>
-		/// <param name="packet">Packet will be send</param>
-		public async Task SendPacket(byte[] packet, Socket socket)
-		{
-			handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
-			handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
-
-			if (handleSendTaskResult.Failure)
-			{
-				logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
-				return;
-			}
-		}
-
-		public Task SendAll(TransactionPacket packet)
-		{
-			return Task.WhenAll(m_clientSockets.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
-		}
-
-		private Task SendClients(Client client)
-		{
-			return SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, new object[]
-				{
-					client.ID,
-					client.Name,
-					client.Online
-				}));
-		}
-
-		private void GetClients()
-		{
-			m_clients = ClientBLL.Instance.GetClients();
-		}
-
-		private async void PushState()
-		{
-			onlineClientCount = 0;
-			await SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, "clear"));
-			await Task.Run(() => this.ClearClientListContainer?.Invoke());
-
-			foreach (Client client in m_clients)
-			{
-				if (client != null && (client.M_Client != null && !client.M_Client.Connected) || (client.M_Client == null))
-					client.Online = false;
-
-				if (client.Online)
-					onlineClientCount++;
-
-				await SendClients(client);
-				await Task.Delay(TimeSpan.FromMilliseconds(0.5));
-			}
-
-			await SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, "sended"));
-			await Task.Run(() => this.ClientListChanged?.Invoke());
-		}
-	}
+    public class SCore : IActions, ITodo, ICommunicateSocket, ISCommunicate, IReceivePacket, ISendPacket, ITranspotDefine, IDelegateDefined
+    {
+        const int ReceiveTimeoutMs = 3000;
+        const int SendTimeoutMs = 3000;
+
+        #region Properties
+
+        private Socket m_listener;
+        private Thread m_thread;
+        private Socket m_lastClient;
+        private List<Socket> m_clientSockets = new List<Socket>();
+
+        private Task<TAPResultPattern<Socket>> acceptTask;
+        private TAPResultPattern<Socket> acceptResult;
+
+        private Task<TAPResultPattern<int>> receivePacketSizeTask;
+        private TAPResultPattern<int> receivePacketSizeTaskResult;
+        private Task<TAPResultPattern<int>> receivePacketTask;
+        private TAPResultPattern<int> receivePacketTaskResult;
+
+        private Task<TAPResultPattern<int>> handleSendTask;
+        private TAPResultPattern<int> handleSendTaskResult;
+
+        private string m_ipAddress = string.Empty;
+        private int m_port = 8000;
+        private string m_systemMsg = string.Empty;
+        private string m_userMsg = string.Empty;
+        private int onlineClientCount;
+        private List<Client> m_clients = new List<Client>();
+        private bool p2p;
+        private bool m_closing;
+
+        // Receive struct
+        private byte[] lenBuffer;
+        private ReceiveBuffer buffer;
+        private ClientListChanged clientListChanged;
+        private ClearClientListContainer clearClientListContainer;
+        private int sentBytes;
+        private int toSent;
+
+        #endregion
+
+        #region EncapsulationProperties
+
+        public Socket Listener { get => m_listener; private set { } }
+        public Thread Thread { get => m_thread; private set { } }
+        public Socket LastClient { get => m_lastClient; private set { } }
+        public List<Socket> ClientSockets { get => m_clientSockets; private set { } }
+        public Task<TAPResultPattern<Socket>> AcceptTask { get => acceptTask; private set { } }
+        public TAPResultPattern<Socket> AcceptResult { get => acceptResult; private set { } }
+
+        public Task<TAPResultPattern<int>> ReceivePacketSizeTask { get => receivePacketSizeTask; private set { } }
+        public TAPResultPattern<int> ReceivePacketSizeTaskResult { get => receivePacketSizeTaskResult; private set { } }
+        public Task<TAPResultPattern<int>> ReceivePacketTask { get => receivePacketTask; private set { } }
+        public TAPResultPattern<int> ReceivePacketTaskResult { get => receivePacketTaskResult; private set { } }
+
+        public Task<TAPResultPattern<int>> HandleSendTask { get => handleSendTask; private set { } }
+        public TAPResultPattern<int> HandleSendTaskResult { get => handleSendTaskResult; private set { } }
+
+        public string IpAddress { get => m_ipAddress; set => m_ipAddress = value; }
+        public int Port { get => m_port; set => m_port = value; }
+        public string SystemMsg { get => m_systemMsg; set => m_systemMsg = value; }
+        public string UserMsg { get => m_userMsg; set => m_userMsg = value; }
+        public int OnlineClientCount { get => onlineClientCount; set => onlineClientCount = value; }
+        public List<Client> Clients { get => m_clients; set => m_clients = value; }
+        public bool P2P { get => p2p; set => p2p = value; }
+
+        public bool Closing
+        {
+            get => m_closing;
+            set
+            {
+                m_closing = value;
+                if (value)
+                {
+                    Close();
+                    buffer.Dispose();
+                }
+            }
+        }
+
+        public byte[] LenBuffer { get => lenBuffer; private set { } }
+        public ReceiveBuffer Buffer { get => buffer; private set { } }
+
+        public ClientListChanged ClientListChanged { get => this.clientListChanged; set => clientListChanged = value; }
+        public ClearClientListContainer ClearClientListContainer { get => this.clearClientListContainer; set => clearClientListContainer = value; }
+
+        private static ILogger logger = new GUILogger();
+
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public SCore()
+        {
+            lenBuffer = new byte[4];
+            buffer = new ReceiveBuffer(0);
+        }
+
+        #region Asynchronous Behavior
+
+        /// <summary>
+        /// Create a Task that accept the next incoming connection (ServerAcceptTask)
+        /// </summary>
+        /// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
+        async Task<TAPResultPattern<Socket>> AcceptConnectionTask()
+        {
+            return await m_listener.AcceptAsyncz().ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Create a Task that receive the size of the packet before it finishes receiving the packet
+        /// </summary>
+        /// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
+        public async Task<TAPResultPattern<int>> ReceivePacketSizeAsync(Socket socket)
+        {
+            var receiveResult = await socket.ReceiveAsyncz
+                (lenBuffer, 0, lenBuffer.Length, SocketFlags.None).ConfigureAwait(false);
+
+            var bytesReceived = receiveResult.Value;
+
+            if (receiveResult.Failure)
+            {
+                if (m_closing)
+                    return TAPResultPattern.Fail<int>("\r\nError reading packet from client, server was close");
+
+                if (bytesReceived <= 0)
+                    return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+
+                if (bytesReceived != 4)
+                    return TAPResultPattern.Fail<int>($"\r\nError reading packet from {socket.RemoteEndPoint}, format does not match");
+            }
+
+            return TAPResultPattern.Ok(BitConverter.ToInt32(lenBuffer, 0));
+        }
+
+        /// <summary>
+        /// Create a Task that finishes receiving the packet
+        /// </summary>
+        /// <returns>A TAPResultPattern<Socket> object task to wait execute</returns>
+        public async Task<TAPResultPattern<int>> ReceivePacketAsync(Socket socket)
+        {
+            var receiveResult = await socket.ReceiveAsyncz
+                (buffer.Buffer, 0, buffer.Buffer.Length, SocketFlags.None).ConfigureAwait(false);
+
+            var bytesReceived = receiveResult.Value;
+
+            if (bytesReceived <= 0)
+            {
+                return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+            }
+
+            buffer.BufferStream.Write(buffer.Buffer, 0, bytesReceived);
+            buffer.ToReceive -= bytesReceived;
+
+            if (buffer.ToReceive > 0)
+            {
+                Array.Clear(buffer.Buffer, 0, buffer.Buffer.Length);
+
+                await ReceivePacketAsync(socket).ConfigureAwait(false);
+            }
+
+            return TAPResultPattern.Ok(bytesReceived);
+        }
+
+        /// <summary>
+        /// Createa Task that start sending the data to the endpoint
+        /// </summary>
+        /// <param name="data">Data will be send</param>
+        /// <returns>The byte number have been sent</returns>
+        public async Task<TAPResultPattern<int>> SendPacketAsync(byte[] data, Socket socket)
+        {
+            var sendSizeResult = await socket.SendWithTimeoutAsyncz(
+                BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
+
+            var bytesReceived = sendSizeResult.Value;
+
+            if (sendSizeResult.Failure)
+            {
+                if (m_closing)
+                    return TAPResultPattern.Fail<int>("\r\nError reading packet, client was close");
+
+                if (bytesReceived <= 0)
+                    return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+
+                if (bytesReceived != 4)
+                    return TAPResultPattern.Fail<int>($"\r\nError reading packet from {socket.RemoteEndPoint}, format does not match");
+            }
+
+            TAPResultPattern<int> sendResult = null;
+
+            if (data.Length >= 1024)
+            {
+                sentBytes = 0;
+                toSent = 1024;
+                while ((data.Length - sentBytes) > 0)
+                {
+                    sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
+                    bytesReceived = sendResult.Value;
+
+                    if (sendResult.Failure)
+                    {
+                        if (m_closing)
+                            return TAPResultPattern.Fail<int>("\r\nError reading packet, server was close");
+
+                        if (bytesReceived <= 0)
+                            return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+
+                        if (bytesReceived != 4)
+                            return TAPResultPattern.Fail<int>($"\r\nError reading packet from {socket.RemoteEndPoint}, packet format does not match");
+                    }
+                    sentBytes += 1024;
+                    toSent = data.Length - sentBytes;
+                }
+            }
+            else
+            {
+                sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
+                bytesReceived = sendResult.Value;
+
+                if (sendResult.Failure)
+                {
+                    if (m_closing)
+                        return TAPResultPattern.Fail<int>("\r\nError reading packet, server was close");
+
+                    if (bytesReceived <= 0)
+                        return TAPResultPattern.Fail<int>($"\r\nUnable to receive packet from {socket.RemoteEndPoint}, the client may have been closed");
+
+                    if (bytesReceived != 4)
+                        return TAPResultPattern.Fail<int>($"\r\nError reading packet from {socket.RemoteEndPoint}, packet format does not match");
+                }
+            }
+
+            return TAPResultPattern.Ok(bytesReceived);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Initialize and bind socket connect
+        /// </summary>
+        public void Init()
+        {
+            string ipAddress = m_ipAddress;
+            if (string.IsNullOrEmpty(ipAddress))
+            {
+                ipAddress = IPServices.GetIPAddress();
+            }
+
+            IPAddress ipa = IPAddress.Parse(ipAddress);
+
+            m_listener = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
+            m_listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+
+            // Bind a socket to a local TCP port and Listen for incoming connections
+            m_listener.Bind(new IPEndPoint(ipa, m_port));
+
+            StartListening();
+            GetClients();
+        }
+
+        /// <summary>
+        /// Close the server and the connection comes from the clients
+        /// </summary>
+        public void Close()
+        {
+            m_listener?.Close();
+
+            foreach (Socket clientSocket in m_clientSockets)
+            {
+                clientSocket.Close();
+            }
+
+            m_lastClient?.Close();
+
+            m_listener = null;
+            m_lastClient = null;
+            m_clientSockets = null;
+            m_thread.Interrupt();
+            m_thread.Abort();
+        }
+
+        /// <summary>
+        /// Prepare for start listen from another thread
+        /// </summary>
+        public void StartListening()
+        {
+            try
+            {
+                m_thread = new Thread(new ThreadStart(Listen));
+                m_thread.IsBackground = true;
+                m_thread.Start();
+
+                // m_systemMsg += "\r\nServer listener started";
+                logger.WriteLogEntry("\r\nServer listener started", ref m_systemMsg);
+            }
+            catch (Exception ex)
+            {
+                // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+            }
+        }
+
+        /// <summary>
+        /// Listen for incoming connections from the client
+        /// </summary>
+        public void Listen()
+        {
+            try
+            {
+                m_listener.Listen(-1);
+
+                ThreadPool.QueueUserWorkItem(Worker, null);
+            }
+            catch (Exception ex)
+            {
+                // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+                m_thread.Interrupt();
+                m_thread.Abort();
+                StartListening();
+            }
+        }
+
+        /// <summary>
+        /// Continuous listening for incoming connections from the client
+        /// </summary>
+        /// <param name="token">Token as client connection</param>
+        public async void Worker(object token = null)
+        {
+            try
+            {
+                if (!p2p)
+                    AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(20));
+                while (m_listener != null)
+                {
+                    // The call to AcceptConnectionTask is not awaited, therefore this method
+                    // continues executing
+                    acceptTask = Task.Run(AcceptConnectionTask);
+                    // Await the result of the ServerAcceptTask
+                    acceptResult = await acceptTask.ConfigureAwait(false);
+
+                    if (acceptResult.Failure)
+                    {
+                        logger.WriteLogEntry($"\r\n{acceptResult.Error}", ref m_systemMsg);
+                        logger.WriteLogEntry("\r\nThere was an error connecting to the server/accepting connection from the client", ref m_systemMsg);
+
+                        //m_systemMsg += $"{acceptResult.Error}";
+                        //throw new Exception("There was an error connecting to the server/accepting connection from the client");
+                    }
+
+                    // Store the transfer socket if ServerAcceptTask was successful
+                    m_lastClient = acceptResult.Value;
+
+                    m_clientSockets.Add(m_lastClient);
+
+                    Thread handle = new Thread(WaitForHandle);
+
+                    handle.IsBackground = true;
+                    handle.Start(m_lastClient);
+                    handle.Join();
+                }
+            }
+            catch (Exception ex)
+            {
+                // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+            }
+        }
+
+        /// <summary>
+        /// Remove disconnected sockets from the list
+        /// </summary>
+        private void ClearDisconnectClients()
+        {
+            foreach (Socket s in m_clientSockets.ToList())
+            {
+                if (s != null && !s.Connected)
+                {
+                    m_clientSockets.Remove(s);
+                    receivePacketSizeTask = null;
+                    receivePacketTask = null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handling received connections
+        /// </summary>
+        /// <param name="token">Client socket</param>
+        public async void WaitForHandle(object token = null)
+        {
+            Socket socket = token as Socket;
+            //await SendAll(new TransactionPacket((int)DoActions.Todo.PushMessage, "Connect accepted"));
+
+            m_systemMsg += $"\r\n\r\n{(socket.RemoteEndPoint as IPEndPoint).Port} Connected";
+            // logger.WriteLogEntry($"\r\n{(socket.RemoteEndPoint as IPEndPoint).Port} Connected", m_getLog);
+
+            while (m_listener != null)
+            {
+                try
+                {
+                    if (m_closing) return;
+
+                    receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
+                    receivePacketSizeTaskResult = await receivePacketSizeTask.ConfigureAwait(false);
+
+                    if (receivePacketSizeTaskResult.Failure)
+                    {
+                        logger.WriteLogEntry(receivePacketSizeTaskResult.Error, ref m_systemMsg);
+                        ClearDisconnectClients();
+                        return;
+                    }
+
+                    buffer = new ReceiveBuffer(receivePacketSizeTaskResult.Value);
+
+                    receivePacketTask = Task.Run(() => ReceivePacketAsync(socket));
+                    receivePacketTaskResult = await receivePacketTask.ConfigureAwait(false);
+
+                    if (receivePacketTaskResult.Failure)
+                    {
+                        logger.WriteLogEntry(receivePacketTaskResult.Error, ref m_systemMsg);
+                        ClearDisconnectClients();
+                        return;
+                    }
+
+                    buffer.BufferStream.Position = 0;
+
+                    TransactionPacket packet = (TransactionPacket)FragmentationServices.
+                        Deserialize(buffer.BufferStream.ToArray());
+
+                    HandleAction(packet, socket);
+
+                    buffer.Dispose();
+                }
+                catch (SocketException ex)
+                {
+                    switch (ex.SocketErrorCode)
+                    {
+                        case SocketError.ConnectionAborted:
+                        case SocketError.ConnectionReset:
+                            // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                            logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+                            break;
+                    }
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                    logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+                }
+                catch (IOException ex)
+                {
+                    // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                    logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+                }
+                catch (SerializationException ex)
+                {
+                    if (m_listener == null || m_closing)
+                        return;
+
+                    receivePacketSizeTask = Task.Run(() => ReceivePacketSizeAsync(socket));
+
+                    // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                    logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+                }
+                catch (Exception ex)
+                {
+                    // m_systemMsg += $"\r\n{ex.Message} {ex.GetType()}";
+                    logger.WriteLogEntry("\r\n" + ex.Message, ref m_systemMsg);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handling received actions 
+        /// </summary>
+        /// <param name="packet">Packet will be receive</param>
+        public void HandleAction(TransactionPacket packet, Socket socket)
+        {
+            switch (packet.Todo)
+            {
+                case (int)DoActions.Todo.PushLog:
+                    object[] param = packet.Value as object[];
+                    m_userMsg += $"\r\n{param[1]} was logging";
+
+                    foreach (Socket s in m_clientSockets)
+                    {
+                        if (s != null && s.Connected && socket != null && socket.Connected && s.RemoteEndPoint == socket.RemoteEndPoint)
+                        {
+                            m_clients.ForEach(x =>
+                            {
+                                if (x.ID == Convert.ToInt32(param[0]))
+                                {
+                                    x.Online = true;
+                                    x.M_Client = s;
+                                }
+                            });
+                        }
+                    }
+
+                    PushState();
+                    break;
+                case (int)DoActions.Todo.PushMessage:
+                    m_userMsg += $"\r\n{packet.Value}";
+                    break;
+                case (int)DoActions.Todo.PushStatus:
+                    break;
+                case (int)DoActions.Todo.PushOfflineMessage:
+                    break;
+                case (int)DoActions.Todo.PushOfflineGroupMessage:
+                    break;
+                case (int)DoActions.MessageType.ServerSendAll:
+                    break;
+                case (int)DoActions.MessageType.ServerToSingleClient:
+                    break;
+                case (int)DoActions.MessageType.ClientToServer:
+                    break;
+                case (int)DoActions.MessageType.ClientToClient:
+                    break;
+                case (int)DoActions.MessageType.OfflineSending:
+                    break;
+                case (int)DoActions.MessageType.ChatToGroup:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Send the packet to the clients
+        /// </summary>
+        /// <param name="packet">Packet will be send</param>
+        public async Task SendPacket(byte[] packet, Socket socket)
+        {
+            try
+            {
+                if (socket != null && socket.Connected)
+                {
+                    handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
+                    handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
+
+                    if (handleSendTaskResult.Failure)
+                    {
+                        logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
+                        return;
+                    }
+                }
+            }
+            finally
+            {
+                // SendOffMessageToDatabase
+            }
+        }
+
+        public Task SendAll(TransactionPacket packet)
+        {
+            return Task.WhenAll(m_clientSockets.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
+        }
+
+        private Task SendClients(Client client)
+        {
+            return SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, new object[]
+                {
+                    client.ID,
+                    client.Name,
+                    client.Online
+                }));
+        }
+
+        private void GetClients()
+        {
+            if (!p2p)
+                m_clients = ClientBLL.Instance.GetClients();
+        }
+
+        private async void PushState()
+        {
+            if (!p2p)
+            {
+                onlineClientCount = 0;
+                await SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, "clear"));
+                await Task.Run(() => this.ClearClientListContainer?.Invoke());
+
+                foreach (Client client in m_clients)
+                {
+                    if (client != null && (client.M_Client != null && !client.M_Client.Connected) || (client.M_Client == null))
+                        client.Online = false;
+
+                    if (client.Online)
+                        onlineClientCount++;
+
+                    await SendClients(client);
+                    await Task.Delay(TimeSpan.FromMilliseconds(0.5));
+                }
+
+                await SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, "sended"));
+                await Task.Run(() => this.ClientListChanged?.Invoke());
+            }
+        }
+    }
 }
