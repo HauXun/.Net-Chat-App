@@ -422,14 +422,14 @@ namespace dotNet_Chat_App.Core
                     }
 					break;
 				case (int)DoActions.Todo.PushMessage:
-					m_userMsg += $"\r\nEndpoint: {packet.Value}";
 					break;
 				case (int)DoActions.Todo.PushOfflineMessage:
 					break;
 				case (int)DoActions.Todo.PushOfflineGroupMessage:
 					break;
 				case (int)DoActions.MessageType.ServerSendAll:
-					break;
+                    m_userMsg += $"\r\nEndpoint: {packet.Value}";
+                    break;
 				case (int)DoActions.MessageType.ServerToSingleClient:
                     m_userMsg += $"\r\nEndpoint: {packet.Value}";
                     break;

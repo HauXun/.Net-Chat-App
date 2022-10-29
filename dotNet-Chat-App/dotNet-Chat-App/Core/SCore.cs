@@ -351,7 +351,7 @@ namespace dotNet_Chat_App.Core
             try
             {
                 if (!p2p)
-                    AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(20));
+                    AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(5));
                 while (m_listener != null)
                 {
                     // The call to AcceptConnectionTask is not awaited, therefore this method
@@ -553,29 +553,38 @@ namespace dotNet_Chat_App.Core
         /// <param name="packet">Packet will be send</param>
         public async Task SendPacket(byte[] packet, Socket socket)
         {
-            try
-            {
-                if (socket != null && socket.Connected)
-                {
-                    handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
-                    handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
 
-                    if (handleSendTaskResult.Failure)
-                    {
-                        logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
-                        return;
-                    }
-                }
-            }
-            finally
+            if (socket != null && socket.Connected)
             {
-                // SendOffMessageToDatabase
+                handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
+                handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
+
+                if (handleSendTaskResult.Failure)
+                {
+                    logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
+                    return;
+                }
             }
         }
 
-        public Task SendAll(TransactionPacket packet)
+        public async Task SendAll(TransactionPacket packet)
         {
-            return Task.WhenAll(m_clientSockets.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
+            try
+            {
+                await Task.WhenAll(m_clientSockets.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
+            }
+            finally
+            {
+                m_clients.ForEach(x =>
+                {
+                    if (packet.Todo >= (int)DoActions.MessageType.ServerSendAll && x.ID != 0)
+                    {
+                        reSend:
+                        if (!MessageBLL.Instance.SaveMessage(packet, Convert.ToInt32(x.Online), x.ID))
+                            goto reSend;
+                    }
+                });
+            }
         }
 
         private Task SendClients(Client client)

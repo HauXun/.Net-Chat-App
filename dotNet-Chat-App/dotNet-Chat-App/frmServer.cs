@@ -53,9 +53,9 @@ namespace dotNet_Chat_App
             Closez();
         }
 
-        private void btnSend_Click(object sender, EventArgs e)
+        private async void btnSend_Click(object sender, EventArgs e)
         {
-            m_sCore.SendAll(new TransactionPacket((int)DoActions.Todo.PushMessage, tbSend.Text));
+            await m_sCore.SendAll(new TransactionPacket((int)DoActions.MessageType.ServerSendAll, tbSend.Text));
         }
 
         private void Closez()
