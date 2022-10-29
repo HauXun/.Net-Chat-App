@@ -70,6 +70,8 @@
     <Compile Include="IProps\ISCommunicate.cs" />
     <Compile Include="IProps\ISendPacket.cs" />
     <Compile Include="IProps\ITranspotDefine.cs" />
+    <Compile Include="Model\BusinessLogicLayer\MessageBLL.cs" />
+    <Compile Include="Model\DataAccessLayer\MessageDAL.cs" />
     <Compile Include="Services\AsynchronousServices.cs" />
     <Compile Include="Services\FragmentationServices.cs" />
     <Compile Include="Services\IPServices.cs" />

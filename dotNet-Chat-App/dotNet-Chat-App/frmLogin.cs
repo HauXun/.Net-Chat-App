@@ -20,6 +20,11 @@ namespace dotNet_Chat_App
 
         private void btnClient_Click(object sender, EventArgs e)
         {
+            if (frm_client != null)
+            {
+                frm_client.Dispose();
+                frm_client = null;
+            }
             Id = txbUserName.Text;
             passWord = txbPass.Text;
             Client client = IsLogin(Id, passWord);
@@ -44,6 +49,11 @@ namespace dotNet_Chat_App
 
         private void btnServer_Click(object sender, EventArgs e)
         {
+            if (frm_server != null)
+            {
+                frm_server.Dispose();
+                frm_server = null;
+            }
             Id = txbUserName.Text;
             passWord = txbPass.Text;
             Client client = IsLogin(Id, passWord);

@@ -37,7 +37,7 @@ namespace dotNet_Chat_App.Model.DataAccessLayer
             string pass = String.Join("", convertMD5);
 
             string query = $"SELECT * FROM dbo.Clients WHERE ID = N'{Id}' AND Password = N'{pass}'";
-            DataTable data = (DataProvider.Instance.ExcuteQuery(query, new object[] {Id, pass}));
+            DataTable data = (DataProvider.Instance.ExcuteQuery(query));
 
             foreach (DataRow row in data.Rows)
             {
@@ -45,6 +45,7 @@ namespace dotNet_Chat_App.Model.DataAccessLayer
             }
             return null;
         }
+
         public List<Client> GetClients()
         {
             string query = "SELECT * FROM dbo.Clients";

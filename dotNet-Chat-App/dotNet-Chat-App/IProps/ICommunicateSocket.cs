@@ -12,6 +12,7 @@ namespace dotNet_Chat_App.IProps
 		int OnlineClientCount { get; set; }
 		List<Client> Clients { get; set; }
 
+		bool P2P { get; set; }
 		bool Closing { get; set; }
 	}
 }
