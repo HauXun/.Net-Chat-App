@@ -253,7 +253,7 @@ namespace dotNet_Chat_App.Core
 			m_client = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
 			// With another socket, connect to the bound socket and await the result (ClientConnectTask)
-			connectResult = await m_client.ConnectAsyncz(ipAddress.ToString(), m_port).ConfigureAwait(false);
+			connectResult = await m_client.ConnectWithTimeoutAsyncz(ipAddress.ToString(), m_port, ConnectTimeoutMs).ConfigureAwait(false);
 
 			if (connectResult.Failure)
 			{
@@ -261,6 +261,8 @@ namespace dotNet_Chat_App.Core
 				//m_systemMsg += $"\r\nThere was an error connecting to the server/accepting connection from the client";
 				logger.WriteLogEntry($"\r\n{connectResult.Error}", ref m_systemMsg);
 				logger.WriteLogEntry($"\r\nThere was an error connecting to the server/accepting connection from the client", ref m_systemMsg);
+
+				AsynchronousServices.setTimeout(() => Listen(), TimeSpan.FromSeconds(5));
 			}
 		}
 
@@ -320,6 +322,8 @@ namespace dotNet_Chat_App.Core
 			logger.WriteLogEntry("\r\nThere is a connection incoming", ref m_systemMsg);
 			//m_systemMsg += $"\r\n{"There is a connection incoming"}";
 
+			AsynchronousServices.setTimeout(() => SendLog(), TimeSpan.FromMilliseconds(0.5));
+
 			try
 			{
 				while (m_client != null)
@@ -343,6 +347,8 @@ namespace dotNet_Chat_App.Core
 					if (receivePacketTaskResult.Failure)
 					{
 						logger.WriteLogEntry(receivePacketTaskResult.Error, ref m_systemMsg);
+
+						AsynchronousServices.setTimeout(() => Listen(), TimeSpan.FromSeconds(5));
 						return;
 					}
 
@@ -391,35 +397,38 @@ namespace dotNet_Chat_App.Core
 		/// <param name="socket">In CCore does not use this</param>
 		public async void HandleAction(TransactionPacket packet, Socket socket)
 		{
+			if (m_closing) return;
+
 			switch (packet.Todo)
 			{
 				case (int)DoActions.Todo.PushLog:
+					AsynchronousServices.setTimeout(() => SendLog(), TimeSpan.FromMilliseconds(0.5));
 					break;
 				case (int)DoActions.Todo.PushStatus:
 					if (!p2p)
 					{
-                        if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("clear"))
-                        {
-                            m_clients.Clear();
-                            await Task.Run(() => this.ClearClientListContainer?.Invoke());
-                        }
+						if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("clear"))
+						{
+							m_clients.Clear();
+							await Task.Run(() => this.ClearClientListContainer?.Invoke());
+						}
 
-                        if (typeof(object[]) == packet.Value.GetType())
-                        {
-                            object[] param = packet.Value as object[];
-                            m_clients.Add(new Client()
-                            {
-                                ID = Convert.ToInt32(param[0]),
-                                Name = param[1].ToString(),
-                                Online = (bool)param[2]
-                            });
-                        }
+						if (typeof(object[]) == packet.Value.GetType())
+						{
+							object[] param = packet.Value as object[];
+							m_clients.Add(new Client()
+							{
+								ID = Convert.ToInt32(param[0]),
+								Name = param[1].ToString(),
+								Online = (bool)param[2]
+							});
+						}
 
-                        if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("sended"))
-                        {
-                            await Task.Run(() => this.ClientListChanged?.Invoke());
-                        }
-                    }
+						if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("sended"))
+						{
+							await Task.Run(() => this.ClientListChanged?.Invoke());
+						}
+					}
 					break;
 				case (int)DoActions.Todo.PushMessage:
 					break;
@@ -471,5 +480,17 @@ namespace dotNet_Chat_App.Core
 				// SendOffMessageToDatabase
 			}
         }
+
+		private async void SendLog()
+		{
+			if (m_client != null && m_client.Connected && m_myClient != null)
+			{
+				await SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushLog, new object[]
+				{
+					m_myClient.ID,
+					m_myClient.Name,
+				})), m_client);
+			}
+		}
 	}
 }
