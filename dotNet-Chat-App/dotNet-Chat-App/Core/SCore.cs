@@ -360,12 +360,12 @@ namespace dotNet_Chat_App.Core
         {
             try
             {
-                if (!p2p)
-                    AsynchronousServices.setInterval(() =>
-                    {
-                        ClearDisconnectClients();
-                        PushState();
-                    }, TimeSpan.FromSeconds(5), this.token);
+                //if (!p2p)
+                    //AsynchronousServices.setInterval(() =>
+                    //{
+                    //    ClearDisconnectClients();
+                    //    PushState();
+                    //}, TimeSpan.FromSeconds(5), this.token);
                 while (m_listener != null)
                 {
                     // The call to AcceptConnectionTask is not awaited, therefore this method
@@ -572,14 +572,15 @@ namespace dotNet_Chat_App.Core
                 case (int)DoActions.MessageType.ClientToServer:
                     m_userMsg += $"\r\n{packet.Value}";
 
-                    m_clients.ForEach(x =>
-                    {
-                    reSend:
-                        if (!MessageBLL.Instance.SaveMessage(packet, Convert.ToInt32(x.Online), x.ID, tokenID))
-                            goto reSend;
-                    });
+                    //m_clients.ForEach(x =>
+                    //{
+                    //reSend:
+                    //    if (!MessageBLL.Instance.SaveMessage(packet, Convert.ToInt32(x.Online), tokenID, x.ID))
+                    //        goto reSend;
+                    //});
                     break;
                 case (int)DoActions.MessageType.ClientToClient:
+                    m_userMsg += $"\r\n{packet.Value}";
                     break;
                 case (int)DoActions.MessageType.OfflineSending:
                     break;
@@ -635,7 +636,8 @@ namespace dotNet_Chat_App.Core
                 {
                     client.ID,
                     client.Name,
-                    client.Online
+                    client.Online,
+                    client.M_Client?.RemoteEndPoint,
                 }));
         }
 

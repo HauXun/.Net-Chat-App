@@ -77,6 +77,7 @@
     <Compile Include="Model\DataAccessLayer\ClientChatGroupDAL.cs" />
     <Compile Include="Model\DataAccessLayer\MessageDAL.cs" />
     <Compile Include="Services\AsynchronousServices.cs" />
+    <Compile Include="Services\ControlServices.cs" />
     <Compile Include="Services\FragmentationServices.cs" />
     <Compile Include="Services\IPServices.cs" />
     <Compile Include="Config\GUILogger.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Common\DoActions.cs" />
     <Compile Include="Utils\DataProvider.cs" />
     <Compile Include="TAP Socket Model\TAPSocket.cs" />
+    <Compile Include="Utils\PeerComponent.cs" />
     <EmbeddedResource Include="AddToGroup.resx">
       <DependentUpon>AddToGroup.cs</DependentUpon>
     </EmbeddedResource>

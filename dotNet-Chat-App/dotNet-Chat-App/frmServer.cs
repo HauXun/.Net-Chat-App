@@ -121,7 +121,7 @@ namespace dotNet_Chat_App
 								if (m_sCore.Closing || this.IsDisposed || this.Disposing)
 									return;
 
-								ClientBox box = new ClientBox(client.Online, client.Name, new Tuple<Socket, Socket>(m_sCore.Listener, client.M_Client));
+								ClientBox box = new ClientBox(client.Online, client.Name);
 								box.Tag = client;
 								box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
 								box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
@@ -145,7 +145,7 @@ namespace dotNet_Chat_App
 			{
 				foreach (Client client in m_sCore.Clients)
 				{
-					ClientBox box = new ClientBox(client.Online, client.Name, new Tuple<Socket, Socket>(m_sCore.Listener, client.M_Client));
+					ClientBox box = new ClientBox(client.Online, client.Name);
 					box.Tag = client;
 					box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
 					box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
@@ -156,22 +156,9 @@ namespace dotNet_Chat_App
 			}
 		}
 
-		private static object GetParent<T>(Control control)
-		{
-			while (control.Parent != null)
-			{
-				if (control.Parent is T)
-				{
-					return (T)(object)control.Parent;
-				}
-				control = control.Parent;
-			}
-			return null;
-		}
-
 		private void PnlContainer_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
-			ClientBox box = (ClientBox)GetParent<ClientBox>(sender as Control);
+			ClientBox box = (ClientBox)ControlServices.GetParent<ClientBox>(sender as Control);
 			Client client = box.Tag as Client;
 
 			//iterate through
@@ -183,7 +170,6 @@ namespace dotNet_Chat_App
 					Tag = client.ID
 				}.Show();
 			}
-			//new frmChatDialog(socket?.Item1, socket?.Item2).Show();
 		}
 	}
 }

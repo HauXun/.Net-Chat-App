@@ -1,6 +1,7 @@
 ﻿using dotNet_Chat_App.Common;
 using dotNet_Chat_App.Core;
 using dotNet_Chat_App.Services;
+using dotNet_Chat_App.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,9 +12,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 
 namespace dotNet_Chat_App
 {
@@ -26,19 +27,22 @@ namespace dotNet_Chat_App
         private System.Windows.Forms.Timer sTimer;
         private System.Windows.Forms.Timer cTimer;
 
-        public Client ClientToSend
-        {
-            get;
-            set;
-        }
-
+        public Client ClientToSend { get; set; }
         private SCore m_sCore;
 
-        public frmChatDialog(Socket server, Socket client)
+        public frmChatDialog(PeerComponent server, PeerComponent client)
         {
             InitializeComponent();
-            localIpEndPoint = server.LocalEndPoint as IPEndPoint;
-            remoteIpEndPoint = client.RemoteEndPoint as IPEndPoint;
+            localIpEndPoint = server.M_EndPoint as IPEndPoint;
+            remoteIpEndPoint = client.M_EndPoint as IPEndPoint;
+
+            sCore = new SCore()
+            {
+                IpAddress = remoteIpEndPoint.Address.ToString(),
+                Port = remoteIpEndPoint.Port,
+                P2P = true,
+                TokenID = server.ID
+            };
         }
 
         public frmChatDialog(SCore m_sCore)
@@ -51,12 +55,6 @@ namespace dotNet_Chat_App
         {
             if (this.m_sCore == null)
             {
-                sCore = new SCore()
-                {
-                    IpAddress = remoteIpEndPoint.Address.ToString(),
-                    Port = remoteIpEndPoint.Port,
-                    P2P = true
-                };
                 sCore.Init();
 
                 cCore = new CCore()
@@ -65,13 +63,14 @@ namespace dotNet_Chat_App
                     Port = localIpEndPoint.Port,
                     P2P = true
                 };
+
                 cCore.Listen();
 
-                sTimer = new Timer();
+                sTimer = new System.Windows.Forms.Timer();
                 sTimer.Tick += STimer_Tick;
                 sTimer.Interval = 250;
 
-                cTimer = new Timer();
+                cTimer = new System.Windows.Forms.Timer();
                 cTimer.Tick += CTimer_Tick;
                 cTimer.Interval = 250;
             }
@@ -127,7 +126,14 @@ namespace dotNet_Chat_App
 
         private async void btnSend_Click(object sender, EventArgs e)
         {
-            await this.m_sCore?.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ServerToSingleClient, this.tbSend.Text)), this.ClientToSend.M_Client);
+            if (m_sCore != null && m_sCore.Closing)
+            {
+                await this.m_sCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ServerToSingleClient, this.tbSend.Text)), this.ClientToSend.M_Client);
+            }
+            else
+            {
+                await this.cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ClientToClient, this.tbSend.Text)), this.sCore.Listener);
+            }
         }
     }
 }

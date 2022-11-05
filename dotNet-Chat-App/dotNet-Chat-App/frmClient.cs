@@ -3,6 +3,7 @@ using dotNet_Chat_App.Core;
 using dotNet_Chat_App.Model.BusinessLogicLayer;
 using dotNet_Chat_App.Services;
 using dotNet_Chat_App.UserControls;
+using dotNet_Chat_App.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -158,7 +159,15 @@ namespace dotNet_Chat_App
                         {
                             this.Invoke(new MethodInvoker(delegate ()
                             {
-                                ClientBox box = new ClientBox(client.Online, client.Name, new Tuple<Socket, Socket>(m_cCore.Client, client.M_Client));
+                                ClientBox box = new ClientBox(client.Online, client.Name, new Tuple<PeerComponent, PeerComponent>(
+                                    new PeerComponent(m_cCore.MyClient.ID, m_cCore.Client.LocalEndPoint),
+                                    new PeerComponent(client.ID, client.M_EndPoint)
+                                    ));
+                                box.Tag = client;
+                                box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                box.pnlContainer.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                box.MouseDoubleClick += PnlContainer_MouseDoubleClick;
                                 this.flpClientContainer.Controls.Add(box);
                             }));
                         }
@@ -167,7 +176,7 @@ namespace dotNet_Chat_App
                         {
                             this.Invoke(new MethodInvoker(delegate ()
                             {
-                                this.flpGroupContainer.Controls.Add(new ClientBox(group.GroupName) { Tag = group.ID});
+                                this.flpGroupContainer.Controls.Add(new ClientBox(group.GroupName) { Tag = group.ID });
                             }));
                         }
                     }
@@ -176,6 +185,18 @@ namespace dotNet_Chat_App
                 {
                     mutex.ReleaseMutex();
                 }
+            }
+        }
+
+        private void PnlContainer_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            ClientBox box = (ClientBox)ControlServices.GetParent<ClientBox>(sender as Control);
+            Tuple<PeerComponent, PeerComponent> endPoint = box.EndPoint;
+
+            //iterate through
+            if (Application.OpenForms["frmChatDialog"] == null || Convert.ToInt32(Application.OpenForms["frmChatDialog"].Tag) != (box.Tag as Client).ID)
+            {
+                new frmChatDialog(endPoint.Item1, endPoint.Item2).Show();
             }
         }
 

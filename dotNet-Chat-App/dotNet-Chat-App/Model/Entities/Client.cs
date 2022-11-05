@@ -4,7 +4,8 @@ namespace dotNet_Chat_App
     using System.Collections.Generic;
     using System.Data;
 	using System.IO;
-	using System.Net.Sockets;
+    using System.Net;
+    using System.Net.Sockets;
 	using System.Xml.Serialization;
 	[Serializable]
     public class Client
@@ -14,6 +15,7 @@ namespace dotNet_Chat_App
         public string Password { get; set; }
         public bool Online { get; set; }
         public Socket M_Client { get; set; }
+        public EndPoint M_EndPoint { get; set; }
 
         public Client()
         {
