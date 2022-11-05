@@ -47,7 +47,7 @@ namespace dotNet_Chat_App
             this.m_sCore = m_sCore;
         }
 
-        private async void frmChatDialog_Load(object sender, EventArgs e)
+        private void frmChatDialog_Load(object sender, EventArgs e)
         {
             if (this.m_sCore == null)
             {

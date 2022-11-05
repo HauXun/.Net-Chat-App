@@ -40,14 +40,16 @@ namespace dotNet_Chat_App.Core
 		private string m_userMsg = string.Empty;
 		private int onlineClientCount;
 		private List<Client> m_clients = new List<Client>();
-		private bool p2p;
+        private List<ChatGroup> groupList = new List<ChatGroup>();
+        private bool p2p;
 		private bool m_closing;
 
 		// Receive struct
 		private byte[] lenBuffer;
 		private ReceiveBuffer buffer;
-		private ClientListChanged clientListChanged;
-		private ClearClientListContainer clearClientListContainer;
+		private ListChanged listChanged;
+		private ClearListContainer clearListContainer;
+		private ReceiveRequestPacket receiveRequestPacket;
 		private int sentBytes;
 		private int toSent;
 
@@ -74,6 +76,7 @@ namespace dotNet_Chat_App.Core
 		public string UserMsg { get => m_userMsg; set => m_userMsg = value; }
 		public int OnlineClientCount { get => onlineClientCount; set => onlineClientCount = value; }
 		public List<Client> Clients { get => m_clients; set => m_clients = value; }
+        public List<ChatGroup> GroupList { get => groupList; set => groupList = value; }
         public bool P2P { get => p2p; set => p2p = value; }
 
         public bool Closing
@@ -93,8 +96,9 @@ namespace dotNet_Chat_App.Core
 		public byte[] LenBuffer { get => lenBuffer; private set { } }
 		public ReceiveBuffer Buffer { get => buffer; private set { } }
 
-		public ClientListChanged ClientListChanged { get => this.clientListChanged; set => clientListChanged = value; }
-		public ClearClientListContainer ClearClientListContainer { get => this.clearClientListContainer; set => clearClientListContainer = value; }
+		public ListChanged ListChanged { get => this.listChanged; set => listChanged = value; }
+		public ClearListContainer ClearListContainer { get => this.clearListContainer; set => clearListContainer = value; }
+		public ReceiveRequestPacket ReceiveRequestPacket { get => this.receiveRequestPacket; set => receiveRequestPacket = value; }
 
 		private static ILogger logger = new GUILogger();
 
@@ -397,7 +401,9 @@ namespace dotNet_Chat_App.Core
 		{
 			if (m_closing) return;
 
-			switch (packet.Todo)
+			object[] param;
+
+            switch (packet.Todo)
 			{
 				case (int)DoActions.Todo.PushLog:
 					break;
@@ -407,12 +413,13 @@ namespace dotNet_Chat_App.Core
 						if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("clear"))
 						{
 							m_clients.Clear();
-							await Task.Run(() => this.ClearClientListContainer?.Invoke());
+							groupList.Clear();
+							await Task.Run(() => this.ClearListContainer?.Invoke());
 						}
 
 						if (typeof(object[]) == packet.Value.GetType())
 						{
-							object[] param = packet.Value as object[];
+							param = packet.Value as object[];
 							m_clients.Add(new Client()
 							{
 								ID = Convert.ToInt32(param[0]),
@@ -423,7 +430,7 @@ namespace dotNet_Chat_App.Core
 
 						if (typeof(string) == packet.Value.GetType() && packet.Value.ToString().Equals("sended"))
 						{
-							await Task.Run(() => this.ClientListChanged?.Invoke());
+							await Task.Run(() => this.ListChanged?.Invoke());
 						}
 					}
 					break;
@@ -432,6 +439,15 @@ namespace dotNet_Chat_App.Core
 				case (int)DoActions.Todo.PushOfflineMessage:
 					break;
 				case (int)DoActions.Todo.PushOfflineGroupMessage:
+					break;
+				case (int)DoActions.Todo.PushGroupList:
+                    param = packet.Value as object[];
+
+                    groupList.Add(new ChatGroup()
+					{
+						ID = Convert.ToInt32(param[0]),
+						GroupName = param[1].ToString(),
+                    });
 					break;
 				case (int)DoActions.MessageType.ServerSendAll:
                     m_userMsg += $"\r\nEndpoint: {packet.Value}";

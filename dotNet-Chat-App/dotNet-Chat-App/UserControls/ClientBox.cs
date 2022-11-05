@@ -15,7 +15,7 @@ namespace dotNet_Chat_App.UserControls
     {
         Tuple<Socket, Socket> socket;
 
-        public ClientBox(bool status, string name, Tuple<Socket, Socket> socket = null)
+        public ClientBox(bool status, string name, Tuple<Socket, Socket> socket)
         {
             InitializeComponent();
             if (status)
@@ -27,8 +27,14 @@ namespace dotNet_Chat_App.UserControls
                 this.pbStatus.BackgroundImage = Properties.Resources.Offline;
             }
             lbName.Text = name;
-            if (socket != null)
-                this.socket = socket;
+            this.socket = socket;
+        }
+
+        public ClientBox(string name)
+        {
+            InitializeComponent();
+            lbName.Text = name;
+            this.pbStatus.BackgroundImage = Properties.Resources.Group;
         }
 
         private void pnlContainer_MouseEnter(object sender, EventArgs e)

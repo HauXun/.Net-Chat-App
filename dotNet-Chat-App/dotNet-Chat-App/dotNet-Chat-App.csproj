@@ -70,7 +70,11 @@
     <Compile Include="IProps\ISCommunicate.cs" />
     <Compile Include="IProps\ISendPacket.cs" />
     <Compile Include="IProps\ITranspotDefine.cs" />
+    <Compile Include="Model\BusinessLogicLayer\ChatGroupBLL.cs" />
+    <Compile Include="Model\BusinessLogicLayer\ClientChatGroupBLL.cs" />
     <Compile Include="Model\BusinessLogicLayer\MessageBLL.cs" />
+    <Compile Include="Model\DataAccessLayer\ChatGroupDAL.cs" />
+    <Compile Include="Model\DataAccessLayer\ClientChatGroupDAL.cs" />
     <Compile Include="Model\DataAccessLayer\MessageDAL.cs" />
     <Compile Include="Services\AsynchronousServices.cs" />
     <Compile Include="Services\FragmentationServices.cs" />
@@ -176,6 +180,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Offline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Group.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

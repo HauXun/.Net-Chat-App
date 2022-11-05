@@ -20,8 +20,9 @@ namespace dotNet_Chat_App
 			InitializeComponent();
 			m_sCore = new SCore()
 			{
-				ClientListChanged = LoadClientList,
-				ClearClientListContainer = ClearClientListContainer
+				ListChanged = LoadList,
+				ClearListContainer = ClearListContainer,
+				TokenID = 1
 			};
 			m_sCore.IpAddress = IPServices.GetIPAddress();
 			m_sCore.Init();
@@ -70,7 +71,7 @@ namespace dotNet_Chat_App
 			}
 		}
 
-		private void ClearClientListContainer()
+		private void ClearListContainer()
 		{
 			if (IsHandleCreated)
 			{
@@ -100,7 +101,7 @@ namespace dotNet_Chat_App
 			}
 		}
 
-		private void LoadClientList()
+		private void LoadList()
 		{
 			if (IsHandleCreated)
 			{

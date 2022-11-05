@@ -30,32 +30,26 @@ namespace dotNet_Chat_App.Model.DataAccessLayer
             set => instance = value;
         }
 
-        public Client IsLogin(string Id, string passWord)
+        public DataTable IsLogin(string Id, string passWord)
         {
             byte[] tmp = ASCIIEncoding.ASCII.GetBytes(passWord);
             byte[] convertMD5 = new MD5CryptoServiceProvider().ComputeHash(tmp);
             string pass = String.Join("", convertMD5);
 
             string query = $"SELECT * FROM dbo.Clients WHERE ID = N'{Id}' AND Password = N'{pass}'";
-            DataTable data = (DataProvider.Instance.ExcuteQuery(query));
-
-            foreach (DataRow row in data.Rows)
-            {
-                return new Client(row);
-            }
-            return null;
+            return DataProvider.Instance.ExcuteQuery(query);
         }
 
-        public List<Client> GetClients()
+        public DataTable GetClients()
         {
             string query = "SELECT * FROM dbo.Clients";
-            DataTable data = (DataProvider.Instance.ExcuteQuery(query));
-            List<Client> clients = new List<Client>();
-            foreach (DataRow item in data.Rows)
-            {
-                clients.Add(new Client(item));
-            }
-            return clients;
+            return DataProvider.Instance.ExcuteQuery(query);
+        }
+
+        public bool SaveStatus(int id, int status)
+        {
+            string query = $"UPDATE dbo.Clients SET Online = {status} WHERE ID = {id}";
+            return DataProvider.Instance.ExcuteNonQuery(query) > 0;
         }
     }
 }

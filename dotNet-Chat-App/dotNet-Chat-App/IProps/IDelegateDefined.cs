@@ -9,7 +9,8 @@ namespace dotNet_Chat_App.IProps
 {
 	public interface IDelegateDefined
 	{
-		ClientListChanged ClientListChanged { get; set; }
-		ClearClientListContainer ClearClientListContainer { get; set; }
-	}
+		ListChanged ListChanged { get; set; }
+		ClearListContainer ClearListContainer { get; set; }
+        ReceiveRequestPacket ReceiveRequestPacket { get; set; }
+    }
 }

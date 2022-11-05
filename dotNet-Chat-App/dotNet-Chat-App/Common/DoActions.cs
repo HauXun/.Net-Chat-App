@@ -8,7 +8,9 @@
             PushStatus,
             PushMessage, 
             PushOfflineMessage,
-            PushOfflineGroupMessage
+            PushOfflineGroupMessage,
+            PushSyncAddGroup,
+            PushGroupList
         }
         public enum MessageType
         {

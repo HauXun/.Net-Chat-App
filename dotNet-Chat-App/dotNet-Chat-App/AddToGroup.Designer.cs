@@ -32,12 +32,12 @@
             this.tbGroupName = new System.Windows.Forms.TextBox();
             this.lbToAdd = new System.Windows.Forms.ListBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnAdd = new System.Windows.Forms.Button();
-            this.lbAdded = new System.Windows.Forms.ListBox();
-            this.btnFoward = new System.Windows.Forms.Button();
-            this.btnBackward = new System.Windows.Forms.Button();
             this.btnBackwardAll = new System.Windows.Forms.Button();
             this.btnFowardAll = new System.Windows.Forms.Button();
+            this.btnBackward = new System.Windows.Forms.Button();
+            this.btnFoward = new System.Windows.Forms.Button();
+            this.lbAdded = new System.Windows.Forms.ListBox();
+            this.btnAdd = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -65,6 +65,7 @@
             this.lbToAdd.ItemHeight = 20;
             this.lbToAdd.Location = new System.Drawing.Point(6, 27);
             this.lbToAdd.Name = "lbToAdd";
+            this.lbToAdd.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
             this.lbToAdd.Size = new System.Drawing.Size(260, 344);
             this.lbToAdd.TabIndex = 2;
             // 
@@ -84,48 +85,6 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Clients";
             // 
-            // btnAdd
-            // 
-            this.btnAdd.AutoSize = true;
-            this.btnAdd.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.btnAdd.Location = new System.Drawing.Point(351, 10);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(75, 35);
-            this.btnAdd.TabIndex = 4;
-            this.btnAdd.Text = "Add";
-            this.btnAdd.UseVisualStyleBackColor = true;
-            // 
-            // lbAdded
-            // 
-            this.lbAdded.FormattingEnabled = true;
-            this.lbAdded.ItemHeight = 20;
-            this.lbAdded.Location = new System.Drawing.Point(353, 27);
-            this.lbAdded.Name = "lbAdded";
-            this.lbAdded.Size = new System.Drawing.Size(260, 344);
-            this.lbAdded.TabIndex = 3;
-            // 
-            // btnFoward
-            // 
-            this.btnFoward.AutoSize = true;
-            this.btnFoward.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.btnFoward.Location = new System.Drawing.Point(272, 100);
-            this.btnFoward.Name = "btnFoward";
-            this.btnFoward.Size = new System.Drawing.Size(75, 35);
-            this.btnFoward.TabIndex = 5;
-            this.btnFoward.Text = ">";
-            this.btnFoward.UseVisualStyleBackColor = true;
-            // 
-            // btnBackward
-            // 
-            this.btnBackward.AutoSize = true;
-            this.btnBackward.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
-            this.btnBackward.Location = new System.Drawing.Point(272, 141);
-            this.btnBackward.Name = "btnBackward";
-            this.btnBackward.Size = new System.Drawing.Size(75, 35);
-            this.btnBackward.TabIndex = 6;
-            this.btnBackward.Text = "<";
-            this.btnBackward.UseVisualStyleBackColor = true;
-            // 
             // btnBackwardAll
             // 
             this.btnBackwardAll.AutoSize = true;
@@ -136,6 +95,7 @@
             this.btnBackwardAll.TabIndex = 8;
             this.btnBackwardAll.Text = "<<";
             this.btnBackwardAll.UseVisualStyleBackColor = true;
+            this.btnBackwardAll.Click += new System.EventHandler(this.btnBackwardAll_Click);
             // 
             // btnFowardAll
             // 
@@ -147,6 +107,51 @@
             this.btnFowardAll.TabIndex = 7;
             this.btnFowardAll.Text = ">>";
             this.btnFowardAll.UseVisualStyleBackColor = true;
+            this.btnFowardAll.Click += new System.EventHandler(this.btnFowardAll_Click);
+            // 
+            // btnBackward
+            // 
+            this.btnBackward.AutoSize = true;
+            this.btnBackward.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.btnBackward.Location = new System.Drawing.Point(272, 141);
+            this.btnBackward.Name = "btnBackward";
+            this.btnBackward.Size = new System.Drawing.Size(75, 35);
+            this.btnBackward.TabIndex = 6;
+            this.btnBackward.Text = "<";
+            this.btnBackward.UseVisualStyleBackColor = true;
+            this.btnBackward.Click += new System.EventHandler(this.btnBackward_Click);
+            // 
+            // btnFoward
+            // 
+            this.btnFoward.AutoSize = true;
+            this.btnFoward.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.btnFoward.Location = new System.Drawing.Point(272, 100);
+            this.btnFoward.Name = "btnFoward";
+            this.btnFoward.Size = new System.Drawing.Size(75, 35);
+            this.btnFoward.TabIndex = 5;
+            this.btnFoward.Text = ">";
+            this.btnFoward.UseVisualStyleBackColor = true;
+            this.btnFoward.Click += new System.EventHandler(this.btnFoward_Click);
+            // 
+            // lbAdded
+            // 
+            this.lbAdded.FormattingEnabled = true;
+            this.lbAdded.ItemHeight = 20;
+            this.lbAdded.Location = new System.Drawing.Point(353, 27);
+            this.lbAdded.Name = "lbAdded";
+            this.lbAdded.Size = new System.Drawing.Size(260, 344);
+            this.lbAdded.TabIndex = 3;
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.AutoSize = true;
+            this.btnAdd.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F);
+            this.btnAdd.Location = new System.Drawing.Point(351, 10);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(75, 35);
+            this.btnAdd.TabIndex = 4;
+            this.btnAdd.Text = "Add";
+            this.btnAdd.UseVisualStyleBackColor = true;
             // 
             // AddToGroup
             // 
@@ -161,6 +166,7 @@
             this.MinimumSize = new System.Drawing.Size(660, 500);
             this.Name = "AddToGroup";
             this.Text = "AddToGroup";
+            this.Load += new System.EventHandler(this.AddToGroup_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
@@ -171,14 +177,14 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox tbGroupName;
-        private System.Windows.Forms.ListBox lbToAdd;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.Button btnBackward;
         private System.Windows.Forms.Button btnFoward;
-        private System.Windows.Forms.ListBox lbAdded;
-        private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Button btnBackwardAll;
         private System.Windows.Forms.Button btnFowardAll;
+        public System.Windows.Forms.TextBox tbGroupName;
+        public System.Windows.Forms.ListBox lbAdded;
+        public System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.ListBox lbToAdd;
     }
 }

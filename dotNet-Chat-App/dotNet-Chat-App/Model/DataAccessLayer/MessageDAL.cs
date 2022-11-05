@@ -31,7 +31,7 @@ namespace dotNet_Chat_App.Model.DataAccessLayer
             set => instance = value;
         }
 
-        public bool SaveMessage(TransactionPacket packets, int sent, int iDReceiver, int iDSent = 0)
+        public bool SaveMessage(TransactionPacket packets, int sent, int iDReceiver, int iDSent = 1)
         {
             byte[] packetSent = FragmentationServices.Serialize(packets);
             string query = "EXEC USP_SaveMessage @MessageDetail , @ClientSent , @ClientReceiver , @Sent , @MessageType";
