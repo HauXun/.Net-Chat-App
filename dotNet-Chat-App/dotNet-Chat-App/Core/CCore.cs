@@ -262,7 +262,7 @@ namespace dotNet_Chat_App.Core
 				logger.WriteLogEntry($"\r\n{connectResult.Error}", ref m_systemMsg);
 				logger.WriteLogEntry($"\r\nThere was an error connecting to the server/accepting connection from the client", ref m_systemMsg);
 
-				AsynchronousServices.setTimeout(() => Listen(), TimeSpan.FromSeconds(5));
+				//AsynchronousServices.setTimeout(() => Listen(), TimeSpan.FromSeconds(5));
 			}
 		}
 
@@ -347,8 +347,6 @@ namespace dotNet_Chat_App.Core
 					if (receivePacketTaskResult.Failure)
 					{
 						logger.WriteLogEntry(receivePacketTaskResult.Error, ref m_systemMsg);
-
-						AsynchronousServices.setTimeout(() => Listen(), TimeSpan.FromSeconds(5));
 						return;
 					}
 
@@ -402,7 +400,6 @@ namespace dotNet_Chat_App.Core
 			switch (packet.Todo)
 			{
 				case (int)DoActions.Todo.PushLog:
-					AsynchronousServices.setTimeout(() => SendLog(), TimeSpan.FromMilliseconds(0.5));
 					break;
 				case (int)DoActions.Todo.PushStatus:
 					if (!p2p)

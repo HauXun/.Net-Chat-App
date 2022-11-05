@@ -17,31 +17,37 @@ namespace dotNet_Chat_App
 		private System.Windows.Forms.Timer m_msgTimer;
 		private CCore m_cCore;
 		private static Mutex mutex = new Mutex();
+		private Client client;
 
 		public frmClient(Client client)
 		{
 			InitializeComponent();
+			this.client = client;
+		}
 
+		private void Init()
+		{
 			m_cCore = new CCore()
 			{
 				ClientListChanged = LoadClientList,
 				ClearClientListContainer = ClearClientListContainer
 			};
 
-			m_cCore.MyClient = client;
-			this.Text += $" - {client.Name}";
-		}
+			m_cCore.MyClient = this.client;
+			this.Text = $"Messenger Fakke - {this.client.Name}";
 
-
-		private void frmClient_Load(object sender, EventArgs e)
-		{
 			m_msgTimer = new System.Windows.Forms.Timer();
 
-			m_msgTimer.Tick += M_msgTimer_Tick; ;
+			m_msgTimer.Tick += M_msgTimer_Tick; 
 			m_msgTimer.Interval = 250;
 			m_msgTimer.Start();
 			m_cCore.IpAddress = IPServices.GetIPAddress();
 			m_cCore.Listen();
+		}
+
+		private void frmClient_Load(object sender, EventArgs e)
+		{
+			Init();
 		}
 
 		private void M_msgTimer_Tick(object sender, EventArgs e)
@@ -71,6 +77,11 @@ namespace dotNet_Chat_App
 			if (m_cCore.Client != null && m_cCore.Client.Connected)
 			{
 				await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushMessage, message)), m_cCore.Client);
+			}
+			else
+			{
+				Closez();
+				Init();
 			}
 		}
 
