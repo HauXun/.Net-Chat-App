@@ -11,20 +11,11 @@ namespace dotNet_Chat_App.Services
 	{
 		public static void setTimeout(Action theAction, TimeSpan timeout)
 		{
-			Thread t = new Thread(
-				() =>
-				{
-					Thread.Sleep(timeout);
-					theAction.Invoke();
-				}
-			);
-			t.Start();
-			t.Join();
-
-			t.Interrupt();
-			t.Abort();
-
-			t = null;
+			SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+			Task.Delay(timeout).ContinueWith((task) =>
+			{
+				theAction();
+			}, TaskScheduler.FromCurrentSynchronizationContext());
 		}
 
 		public static async Task setInterval(Action action, TimeSpan timeout, CancellationToken token)

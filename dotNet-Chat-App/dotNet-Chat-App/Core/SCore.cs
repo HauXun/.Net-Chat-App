@@ -353,7 +353,11 @@ namespace dotNet_Chat_App.Core
 			try
 			{
 				if (!p2p)
-					AsynchronousServices.setInterval(PushState, TimeSpan.FromSeconds(5), this.token);
+					AsynchronousServices.setInterval(() =>
+					{
+						ClearDisconnectClients();
+						PushState();
+					}, TimeSpan.FromSeconds(5), this.token);
 				while (m_listener != null)
 				{
 					// The call to AcceptConnectionTask is not awaited, therefore this method
@@ -432,7 +436,6 @@ namespace dotNet_Chat_App.Core
 					if (receivePacketSizeTaskResult.Failure)
 					{
 						logger.WriteLogEntry(receivePacketSizeTaskResult.Error, ref m_systemMsg);
-						ClearDisconnectClients();
 						return;
 					}
 
@@ -444,7 +447,6 @@ namespace dotNet_Chat_App.Core
 					if (receivePacketTaskResult.Failure)
 					{
 						logger.WriteLogEntry(receivePacketTaskResult.Error, ref m_systemMsg);
-						ClearDisconnectClients();
 						return;
 					}
 
@@ -576,7 +578,7 @@ namespace dotNet_Chat_App.Core
 		{
 			try
 			{
-				await Task.WhenAll(m_clientSockets.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
+				await Task.WhenAll(m_clientSockets?.Select(x => SendPacket(FragmentationServices.Serialize(packet), x)));
 			}
 			finally
 			{
@@ -618,7 +620,7 @@ namespace dotNet_Chat_App.Core
 				await SendAll(new TransactionPacket((int)DoActions.Todo.PushStatus, "clear"));
 				await Task.Run(() => this.ClearClientListContainer?.Invoke());
 
-				foreach (Client client in m_clients)
+				foreach (Client client in m_clients.ToList())
 				{
 					if (client != null && (client.M_Client != null && !client.M_Client.Connected) || (client.M_Client == null))
 						client.Online = false;
