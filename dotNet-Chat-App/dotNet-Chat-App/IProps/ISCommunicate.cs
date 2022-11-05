@@ -12,6 +12,7 @@ namespace dotNet_Chat_App.IProps
 		Thread Thread { get; }
 		Socket LastClient { get; }
 		List<Socket> ClientSockets { get; }
+		int TokenID { get; set; }
 
 		Task<TAPResultPattern<Socket>> AcceptTask { get; }
 		TAPResultPattern<Socket> AcceptResult { get; }

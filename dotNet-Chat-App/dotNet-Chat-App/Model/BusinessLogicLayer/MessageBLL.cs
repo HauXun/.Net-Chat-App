@@ -24,21 +24,26 @@ namespace dotNet_Chat_App.Model.BusinessLogicLayer
             set => instance = value;
         }
 
-        public bool SaveMessage(TransactionPacket packets, int sent, int iDReceiver, int iDSent = 0)
+        public bool SaveMessage(TransactionPacket packets, int sent, int iDReceiver, int iDSent = 1)
         {
             return MessageDAL.Instance.SaveMessage(packets, sent, iDReceiver, iDSent);
         }
 
         public List<Message> GetAllMessage()
         {
-            List<Message> results = new List<Message>();
             DataTable data = MessageDAL.Instance.GetAllMessage();
-            foreach (DataRow row in data.Rows)
+
+            if (data != null && data.Rows.Count > 0)
             {
-                results.Add(new Message(row));
+                List<Message> results = new List<Message>();
+                foreach (DataRow row in data.Rows)
+                {
+                    results.Add(new Message(row));
+                }
+                return results;
             }
 
-            return results;
+            return null;
         }
     }
 }

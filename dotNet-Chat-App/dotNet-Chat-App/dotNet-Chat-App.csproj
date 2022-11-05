@@ -70,9 +70,14 @@
     <Compile Include="IProps\ISCommunicate.cs" />
     <Compile Include="IProps\ISendPacket.cs" />
     <Compile Include="IProps\ITranspotDefine.cs" />
+    <Compile Include="Model\BusinessLogicLayer\ChatGroupBLL.cs" />
+    <Compile Include="Model\BusinessLogicLayer\ClientChatGroupBLL.cs" />
     <Compile Include="Model\BusinessLogicLayer\MessageBLL.cs" />
+    <Compile Include="Model\DataAccessLayer\ChatGroupDAL.cs" />
+    <Compile Include="Model\DataAccessLayer\ClientChatGroupDAL.cs" />
     <Compile Include="Model\DataAccessLayer\MessageDAL.cs" />
     <Compile Include="Services\AsynchronousServices.cs" />
+    <Compile Include="Services\ControlServices.cs" />
     <Compile Include="Services\FragmentationServices.cs" />
     <Compile Include="Services\IPServices.cs" />
     <Compile Include="Config\GUILogger.cs" />
@@ -126,6 +131,7 @@
     <Compile Include="Common\DoActions.cs" />
     <Compile Include="Utils\DataProvider.cs" />
     <Compile Include="TAP Socket Model\TAPSocket.cs" />
+    <Compile Include="Utils\PeerComponent.cs" />
     <EmbeddedResource Include="AddToGroup.resx">
       <DependentUpon>AddToGroup.cs</DependentUpon>
     </EmbeddedResource>
@@ -176,6 +182,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Offline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Group.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

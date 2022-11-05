@@ -2,6 +2,7 @@
 {
 	// Nhận thông tin log
 	public delegate void GetLog(string log);
-	public delegate void ClientListChanged();
-	public delegate void ClearClientListContainer();
+	public delegate void ListChanged();
+	public delegate void ClearListContainer();
+	public delegate void ReceiveRequestPacket(object data);
 }

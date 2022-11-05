@@ -28,7 +28,7 @@ namespace dotNet_Chat_App
             passWord = txbPass.Text;
             Client client = IsLogin(Id, passWord);
 
-            if (client.ID > 0 && client.ID != SERVER_ID)
+            if (client != null && client.ID > 0 && client.ID != SERVER_ID)
             {
                 frm_client = new frmClient(client);
                 frm_client.FormClosed += Client_FormClosed;
@@ -52,7 +52,7 @@ namespace dotNet_Chat_App
             passWord = txbPass.Text;
             Client client = IsLogin(Id, passWord);
 
-            if (client.ID > 0 && client.ID == SERVER_ID)
+            if (client != null && client.ID > 0 && client.ID == SERVER_ID)
             {
                 frm_server = new frmServer();
                 frm_server.FormClosed += Server_FormClosed;
