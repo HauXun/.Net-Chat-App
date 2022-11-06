@@ -16,7 +16,7 @@ namespace dotNet_Chat_App.UserControls
     {
         public Tuple<PeerComponent, PeerComponent> EndPoint { get; set; }
 
-        public ClientBox(bool status, string name, Tuple<PeerComponent, PeerComponent> endPoint = null)
+        public ClientBox(bool status, string name)
         {
             InitializeComponent();
             if (status)
@@ -28,8 +28,6 @@ namespace dotNet_Chat_App.UserControls
                 this.pbStatus.BackgroundImage = Properties.Resources.Offline;
             }
             lbName.Text = name;
-            if (endPoint != null)
-                EndPoint = endPoint;
         }
 
         public ClientBox(string name)

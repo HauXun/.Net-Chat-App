@@ -7,6 +7,8 @@ namespace dotNet_Chat_App.IProps
 	{
 		Socket Client { get; }
 		Client MyClient { get; set; }
+		string P2PMsg { get; set; }
+
 
 		TAPResultPattern ConnectResult { get; }
 	}
