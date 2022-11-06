@@ -1,5 +1,6 @@
 ﻿using dotNet_Chat_App.Common;
 using dotNet_Chat_App.Model.DataAccessLayer;
+using dotNet_Chat_App.Utils;
 using System.Collections.Generic;
 using System.Data;
 
@@ -44,6 +45,28 @@ namespace dotNet_Chat_App.Model.BusinessLogicLayer
             }
 
             return null;
+        }
+
+        public List<Message> GetAllMessageUnsent()
+        {
+            DataTable data = MessageDAL.Instance.GetAllMessageUnsent();
+
+            if (data != null && data.Rows.Count > 0)
+            {
+                List<Message> results = new List<Message>();
+                foreach (DataRow row in data.Rows)
+                {
+                    results.Add(new Message(row));
+                }
+                return results;
+            }
+
+            return null;
+        }
+
+        public bool FecthMessageStatus(int messageId, int status)
+        {
+            return MessageDAL.Instance.FecthMessageStatus(messageId, status);
         }
     }
 }

@@ -59,7 +59,7 @@ namespace dotNet_Chat_App
 
 		private async void btnSend_Click(object sender, EventArgs e)
 		{
-			await m_sCore.SendAll(new TransactionPacket((int)DoActions.MessageType.ServerSendAll, tbSend.Text));
+			await m_sCore.SendAll(new TransactionPacket((int)DoActions.MessageType.ServerSendAll, $"Remote: {tbSend.Text}"));
 		}
 
 		private void Closez()
@@ -113,21 +113,24 @@ namespace dotNet_Chat_App
 						return;
 
 					if (m_sCore != null && m_sCore.Clients != null && m_sCore.Clients.Count > 0)
-					{
-						foreach (Client client in m_sCore.Clients)
-						{
-							this.Invoke(new MethodInvoker(delegate ()
-							{
-								if (m_sCore.Closing || this.IsDisposed || this.Disposing)
-									return;
+                    {
+                        if (m_sCore.Closing || this.IsDisposed || this.Disposing)
+                            return;
 
-								ClientBox box = new ClientBox(client.Online, client.Name);
-								box.Tag = client;
-								box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-								box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-								box.pnlContainer.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-								box.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-								this.flpClientContainer.Controls.Add(box);
+                        foreach (Client client in m_sCore.Clients)
+                        {
+                            this.Invoke(new MethodInvoker(delegate ()
+							{
+                                if (client != null && !client.ID.Equals(m_sCore.TokenID))
+                                {
+                                    ClientBox box = new ClientBox(client.Online, client.Name);
+                                    box.Tag = client;
+                                    box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                    box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                    box.pnlContainer.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                    box.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+                                    this.flpClientContainer.Controls.Add(box);
+                                }
 							}));
 						}
 					}

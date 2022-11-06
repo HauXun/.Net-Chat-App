@@ -51,5 +51,18 @@ namespace dotNet_Chat_App.Model.DataAccessLayer
             string query = "SELECT * FROM Messages";
             return DataProvider.Instance.ExcuteQuery(query);
         }
+
+        public DataTable GetAllMessageUnsent()
+        {
+            string query = "SELECT * FROM Messages WHERE Sent = 0";
+            return DataProvider.Instance.ExcuteQuery(query);
+        }
+
+        public bool FecthMessageStatus(int messageId, int status)
+        {
+            string query = $"UPDATE dbo.Messages SET Sent = {status} WHERE ID = {messageId}";
+
+            return DataProvider.Instance.ExcuteNonQuery(query) > 0;
+        }
     }
 }

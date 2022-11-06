@@ -455,15 +455,19 @@ namespace dotNet_Chat_App.Core
                     });
                     break;
                 case (int)DoActions.MessageType.ServerSendAll:
-                    m_userMsg += $"\r\nEndpoint: {packet.Value}";
+                    m_userMsg += $"\r\n{packet.Value}";
                     break;
                 case (int)DoActions.MessageType.ServerToSingleClient:
-                    m_userMsg += $"\r\nEndpoint: {packet.Value}";
+                    param = packet.Value as object[];
+
+                    m_userMsg += $"\r\n{param[2]}";
                     break;
                 case (int)DoActions.MessageType.ClientToServer:
                     break;
                 case (int)DoActions.MessageType.ClientToClient:
-                    p2pMsg += $"\r\n{packet.Value}";
+                    param = packet.Value as object[];
+
+                    p2pMsg += $"\r\n{param[2]}";
                     break;
                 case (int)DoActions.MessageType.OfflineSending:
                     break;
