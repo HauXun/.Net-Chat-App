@@ -24,6 +24,7 @@ namespace dotNet_Chat_App.Core
 
         private Socket m_client;
         private Client m_myClient = new Client();
+        private string p2pMsg = string.Empty;
 
         private TAPResultPattern connectResult;
 
@@ -60,6 +61,7 @@ namespace dotNet_Chat_App.Core
 
         public Socket Client { get => m_client; private set { } }
         public Client MyClient { get => m_myClient; set => m_myClient = value; }
+        public string P2PMsg { get => p2pMsg; set => p2pMsg = value; }
 
         public TAPResultPattern ConnectResult { get => connectResult; private set { } }
 
@@ -177,9 +179,9 @@ namespace dotNet_Chat_App.Core
         /// <param name="data">Data will be send</param>
         /// <returns>The byte number have been sent</returns>
         public async Task<TAPResultPattern<int>> SendPacketAsync(byte[] data, Socket socket)
-        {
-            var sendSizeResult = await socket.SendWithTimeoutAsyncz(
-                BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
+		{
+			var sendSizeResult = await socket.SendWithTimeoutAsyncz(
+				BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
 
             var bytesReceived = sendSizeResult.Value;
 
@@ -202,9 +204,9 @@ namespace dotNet_Chat_App.Core
                 sentBytes = 0;
                 toSent = 1024;
                 while ((data.Length - sentBytes) > 0)
-                {
-                    sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
-                    bytesReceived = sendResult.Value;
+				{
+					sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
+					bytesReceived = sendResult.Value;
 
                     if (sendResult.Failure)
                     {
@@ -222,9 +224,9 @@ namespace dotNet_Chat_App.Core
                 }
             }
             else
-            {
-                sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
-                bytesReceived = sendResult.Value;
+			{
+				sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
+				bytesReceived = sendResult.Value;
 
                 if (sendResult.Failure)
                 {
@@ -257,10 +259,10 @@ namespace dotNet_Chat_App.Core
 
             m_client = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
-            // With another socket, connect to the bound socket and await the result (ClientConnectTask)
-            connectResult = await m_client.ConnectWithTimeoutAsyncz(ipAddress.ToString(), m_port, ConnectTimeoutMs).ConfigureAwait(false);
+			// With another socket, connect to the bound socket and await the result (ClientConnectTask)
+			connectResult = await m_client.ConnectWithTimeoutAsyncz(ipAddress.ToString(), m_port, ConnectTimeoutMs).ConfigureAwait(false);
 
-            if (connectResult.Failure)
+			if (connectResult.Failure)
             {
                 //m_systemMsg += $"\r\n{connectResult.Error}";
                 //m_systemMsg += $"\r\nThere was an error connecting to the server/accepting connection from the client";
@@ -284,11 +286,11 @@ namespace dotNet_Chat_App.Core
         /// <summary>
         /// Connect instead of Listen for client
         /// </summary>
-        public async void Listen()
+        public void Listen()
         {
             try
             {
-                await Task.Run(() => Worker());
+                Worker();
                 ThreadPool.QueueUserWorkItem(WaitForHandle, m_client);
             }
             catch (ArgumentNullException ex)
@@ -438,7 +440,7 @@ namespace dotNet_Chat_App.Core
                     }
                     break;
                 case (int)DoActions.Todo.PushMessage:
-                    break;
+					break;
                 case (int)DoActions.Todo.PushOfflineMessage:
                     break;
                 case (int)DoActions.Todo.PushOfflineGroupMessage:
@@ -461,7 +463,7 @@ namespace dotNet_Chat_App.Core
                 case (int)DoActions.MessageType.ClientToServer:
                     break;
                 case (int)DoActions.MessageType.ClientToClient:
-                    m_userMsg += $"\r\n{packet.Value}";
+                    p2pMsg += $"\r\n{packet.Value}";
                     break;
                 case (int)DoActions.MessageType.OfflineSending:
                     break;

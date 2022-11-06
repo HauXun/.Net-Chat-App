@@ -10,7 +10,8 @@
             PushOfflineMessage,
             PushOfflineGroupMessage,
             PushSyncAddGroup,
-            PushGroupList
+            PushGroupList,
+            PushLogout
         }
         public enum MessageType
         {
