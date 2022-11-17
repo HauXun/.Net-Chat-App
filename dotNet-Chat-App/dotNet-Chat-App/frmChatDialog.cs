@@ -2,6 +2,9 @@
 using dotNet_Chat_App.Core;
 using dotNet_Chat_App.Services;
 using System;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Text;
 using System.Windows.Forms;
 
 namespace dotNet_Chat_App
@@ -11,6 +14,7 @@ namespace dotNet_Chat_App
         public Client ClientToSend { get; set; }
         private SCore m_sCore;
         private CCore m_cCore;
+        private List<Message> listCacheMessage;
 
         public frmChatDialog(SCore m_sCore)
         {
@@ -37,12 +41,32 @@ namespace dotNet_Chat_App
             }
             else
             {
-                await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ClientToClient, new object[]
+                // Internet connection checking
+                if (NetworkInterface.GetIsNetworkAvailable())
                 {
+                    await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ClientToClient, new object[]
+                    {
                     this.m_cCore.MyClient.ID,
                     this.ClientToSend.ID,
                     $"{this.m_cCore.MyClient.Name}: {this.tbSend.Text}"
-                })), m_cCore.Client);
+                    })), m_cCore.Client);
+                }
+                else
+                {
+                    if (listCacheMessage == null)
+                        listCacheMessage = new List<Message>();
+
+                    Message messageToCahe = new Message()
+                    {
+                        DetailMessage = FragmentationServices.Serialize($"{this.m_cCore.MyClient.Name}: {this.tbSend.Text}"),
+                        ClientSent = this.m_cCore.MyClient.ID,
+                        ClientReceiver = this.ClientToSend.ID,
+                        MessageType = (int)DoActions.MessageType.ClientToClient
+                    };
+
+                    listCacheMessage.Add(messageToCahe);
+                    JsonServices.JSONEncode(listCacheMessage);
+                }
             }
         }
 

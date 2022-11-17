@@ -13,6 +13,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System.IO;
+using System.Net.NetworkInformation;
 
 namespace dotNet_Chat_App
 {
@@ -26,11 +31,19 @@ namespace dotNet_Chat_App
         private List<int> cloneID;
         private object receivePacketData;
         private frmChatDialog chatDialog;
+        private Message messageToCahe;
+        private List<Message> listCacheMessage;
+
+        private CancellationTokenSource ts;
+        private CancellationToken token;
 
         public frmClient(Client client)
         {
             InitializeComponent();
             this.client = client;
+
+            ts = new CancellationTokenSource();
+            token = ts.Token;
         }
 
         private void Init()
@@ -57,6 +70,46 @@ namespace dotNet_Chat_App
         private void frmClient_Load(object sender, EventArgs e)
         {
             Init();
+            NetworkChange.NetworkAvailabilityChanged += NetworkChange_NetworkAvailabilityChanged;
+        }
+
+        private async void NetworkChange_NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+        {
+            if (NetworkInterface.GetIsNetworkAvailable())
+            {
+                List<Message> messages = JsonServices.JSONDecode();
+
+                foreach (Message message in messages.ToList())
+                {
+                    switch (message.MessageType)
+                    {
+                        case (int)DoActions.MessageType.ClientToServer:
+                            if (m_cCore.Client != null && m_cCore.Client.Connected)
+                            {
+                                await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)message.MessageType, new object[]
+                                {
+                                    message.ClientSent,
+                                    FragmentationServices.Deserialize(message.DetailMessage),
+                                })), m_cCore.Client);
+
+                                messages.Remove(message);
+                            }
+                            break;
+                        case (int)DoActions.MessageType.ClientToClient:
+                            await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)message.MessageType, new object[]
+                            {
+                                message.ClientSent,
+                                message.ClientReceiver,
+                                FragmentationServices.Deserialize(message.DetailMessage),
+                            })), m_cCore.Client);
+
+                            messages.Remove(message);
+                            break;
+                    }
+
+                    JsonServices.JSONEncode(messages);
+                }
+            }
         }
 
         private void M_msgTimer_Tick(object sender, EventArgs e)
@@ -86,18 +139,37 @@ namespace dotNet_Chat_App
 
         private async void Send(string message)
         {
-            if (m_cCore.Client != null && m_cCore.Client.Connected)
+            // Internet connection checking
+            if (NetworkInterface.GetIsNetworkAvailable())
             {
-                await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ClientToServer, new object[]
+                if (m_cCore.Client != null && m_cCore.Client.Connected)
                 {
-                    m_cCore.MyClient.ID,
-                    message,
-                })), m_cCore.Client);
+                    await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.MessageType.ClientToServer, new object[]
+                    {
+                        m_cCore.MyClient.ID,
+                        message,
+                    })), m_cCore.Client);
+                }
+                else
+                {
+                    Closez();
+                    Init();
+                }
             }
             else
             {
-                Closez();
-                Init();
+                if (listCacheMessage == null)
+                    listCacheMessage = new List<Message>();
+
+                Message messageToCahe = new Message()
+                {
+                    DetailMessage = FragmentationServices.Serialize(message),
+                    ClientSent = m_cCore.MyClient.ID,
+                    MessageType = (int)DoActions.MessageType.ClientToServer
+                };
+
+                listCacheMessage.Add(messageToCahe);
+                JsonServices.JSONEncode(listCacheMessage);
             }
         }
 

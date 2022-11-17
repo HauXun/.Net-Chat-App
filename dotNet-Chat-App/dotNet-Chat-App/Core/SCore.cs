@@ -60,7 +60,7 @@ namespace dotNet_Chat_App.Core
         private ReceiveRequestPacket receiveRequestPacket;
         private int sentBytes;
         private int toSent;
-        private bool reLog;
+        private bool reLog = true;
 
         #endregion
 
@@ -704,6 +704,9 @@ namespace dotNet_Chat_App.Core
                         onlineClientCount++;
 
                     await SendClients(client);
+
+                    ClientBLL.Instance.SaveStatus(client.ID, Convert.ToInt32(client.Online));
+
                     await Task.Delay(TimeSpan.FromMilliseconds(0.5));
                 }
 
@@ -736,7 +739,7 @@ namespace dotNet_Chat_App.Core
                     if (!message.Sent)
                     {
                     reSend:
-                        if (!MessageBLL.Instance.FecthMessageStatus(message.ID, Convert.ToInt32(true)))
+                        if (!MessageBLL.Instance.FecthMessageStatus((int)message.ID, Convert.ToInt32(true)))
                             goto reSend;
                     }
                 }
@@ -759,7 +762,7 @@ namespace dotNet_Chat_App.Core
                     if (!message.Sent)
                     {
                     reSend:
-                        if (!MessageBLL.Instance.FecthMessageStatus(message.ID, Convert.ToInt32(true)))
+                        if (!MessageBLL.Instance.FecthMessageStatus((int)message.ID, Convert.ToInt32(true)))
                             goto reSend;
                     }
                 }
@@ -786,7 +789,7 @@ namespace dotNet_Chat_App.Core
                             if (!message.Sent)
                             {
                             reSend:
-                                if (!MessageBLL.Instance.FecthMessageStatus(message.ID, Convert.ToInt32(true)))
+                                if (!MessageBLL.Instance.FecthMessageStatus((int)message.ID, Convert.ToInt32(true)))
                                     goto reSend;
                             }
                         }
@@ -815,7 +818,7 @@ namespace dotNet_Chat_App.Core
                         if (!message.Sent)
                         {
                         reSend:
-                            if (!MessageBLL.Instance.FecthMessageStatus(message.ID, Convert.ToInt32(true)))
+                            if (!MessageBLL.Instance.FecthMessageStatus((int)message.ID, Convert.ToInt32(true)))
                                 goto reSend;
                         }
 
@@ -829,7 +832,7 @@ namespace dotNet_Chat_App.Core
                             await SendPacket(message.DetailMessage, x.M_Client);
 
                         reSend:
-                            if (!MessageBLL.Instance.FecthMessageStatus(message.ID, Convert.ToInt32(true)))
+                            if (!MessageBLL.Instance.FecthMessageStatus((int)message.ID, Convert.ToInt32(true)))
                                 goto reSend;
                         }
                     }

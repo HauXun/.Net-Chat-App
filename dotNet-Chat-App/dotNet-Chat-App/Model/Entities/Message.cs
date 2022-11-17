@@ -1,15 +1,23 @@
 namespace dotNet_Chat_App
 {
+    using Newtonsoft.Json;
     using System;
     using System.Data;
 
     public class Message
     {
-        public int ID { get; set; }
+        [JsonIgnore]
+        [JsonProperty("ID")]
+        public int? ID { get; set; }
+        [JsonProperty("DetailMessage")]
         public byte[] DetailMessage { get; set; }
+        [JsonProperty("ClientSent")]
         public int? ClientSent { get; set; }
-        public int ClientReceiver { get; set; }
+        [JsonProperty("ClientReceiver")]
+        public int? ClientReceiver { get; set; }
+        [JsonProperty("Sent")]
         public bool Sent { get; set; }
+        [JsonProperty("MessageType")]
         public int MessageType { get; set; }
 
         public Message()

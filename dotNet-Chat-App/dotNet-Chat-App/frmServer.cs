@@ -148,13 +148,16 @@ namespace dotNet_Chat_App
 			{
 				foreach (Client client in m_sCore.Clients)
 				{
-					ClientBox box = new ClientBox(client.Online, client.Name);
-					box.Tag = client;
-					box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-					box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-					box.pnlContainer.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-					box.MouseDoubleClick += PnlContainer_MouseDoubleClick;
-					flpClientContainer.Controls.Add(box);
+					if (client != null && !client.ID.Equals(m_sCore.TokenID))
+					{
+						ClientBox box = new ClientBox(client.Online, client.Name);
+						box.Tag = client;
+						box.lbName.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+						box.pbStatus.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+						box.pnlContainer.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+						box.MouseDoubleClick += PnlContainer_MouseDoubleClick;
+						flpClientContainer.Controls.Add(box);
+					}
 				}
 			}
 		}
