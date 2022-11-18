@@ -38,6 +38,7 @@ namespace dotNet_Chat_App
                     this.ClientToSend.Online,
                     this.tbSend.Text
                 }), this.ClientToSend.M_Client);
+                this.tbMessage.Text += $"\r\nEndpoint: {this.tbSend.Text}";
             }
             else
             {
@@ -50,6 +51,8 @@ namespace dotNet_Chat_App
                     this.ClientToSend.ID,
                     $"{this.m_cCore.MyClient.Name}: {this.tbSend.Text}"
                     })), m_cCore.Client);
+
+                    this.tbMessage.Text += $"\r\n{m_cCore.MyClient.Name}: {this.tbSend.Text}";
                 }
                 else
                 {
@@ -74,11 +77,18 @@ namespace dotNet_Chat_App
         {
             this.Text = $"Chat Dialog - {this.ClientToSend.Name}";
 
-            await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushOfflineMessage, new object[]
+            if (m_sCore != null)
             {
+
+            }
+            else
+            {
+                await m_cCore.SendPacket(FragmentationServices.Serialize(new TransactionPacket((int)DoActions.Todo.PushOfflineMessage, new object[]
+                {
+                    this.m_cCore.MyClient.ID,
                     this.ClientToSend.ID,
-                this.m_cCore.MyClient.ID,
-            })), m_cCore.Client);
+                })), m_cCore.Client);
+            }
         }
     }
 }

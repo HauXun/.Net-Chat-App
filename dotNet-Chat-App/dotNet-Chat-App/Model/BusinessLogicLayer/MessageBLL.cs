@@ -47,6 +47,23 @@ namespace dotNet_Chat_App.Model.BusinessLogicLayer
             return null;
         }
 
+        public List<Message> GetMessageBothSide(int clientSent, int clientRec)
+        {
+            DataTable data = MessageDAL.Instance.GetMessageBothSide(clientSent, clientRec);
+
+            if (data != null && data.Rows.Count > 0)
+            {
+                List<Message> results = new List<Message>();
+                foreach (DataRow row in data.Rows)
+                {
+                    results.Add(new Message(row));
+                }
+                return results;
+            }
+
+            return null;
+        }
+
         public List<Message> GetAllMessageUnsent()
         {
             DataTable data = MessageDAL.Instance.GetAllMessageUnsent();

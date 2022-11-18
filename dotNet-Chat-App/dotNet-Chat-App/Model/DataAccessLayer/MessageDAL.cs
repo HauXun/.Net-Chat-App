@@ -52,6 +52,12 @@ namespace dotNet_Chat_App.Model.DataAccessLayer
             return DataProvider.Instance.ExcuteQuery(query);
         }
 
+        public DataTable GetMessageBothSide(int clientSent, int clientRec)
+        {
+            string query = $"SELECT * FROM Messages WHERE ClientSent = {clientSent} AND ClientReceiver = {clientRec}";
+            return DataProvider.Instance.ExcuteQuery(query);
+        }
+
         public DataTable GetAllMessageUnsent()
         {
             string query = "SELECT * FROM Messages WHERE Sent = 0";

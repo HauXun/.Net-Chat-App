@@ -51,7 +51,6 @@ namespace dotNet_Chat_App.Core
         private ReceiveBuffer buffer;
         private ListChanged listChanged;
         private ClearListContainer clearListContainer;
-        private ReceiveRequestPacket receiveRequestPacket;
         private int sentBytes;
         private int toSent;
 
@@ -101,7 +100,6 @@ namespace dotNet_Chat_App.Core
 
         public ListChanged ListChanged { get => this.listChanged; set => listChanged = value; }
         public ClearListContainer ClearListContainer { get => this.clearListContainer; set => clearListContainer = value; }
-        public ReceiveRequestPacket ReceiveRequestPacket { get => this.receiveRequestPacket; set => receiveRequestPacket = value; }
 
         private static ILogger logger = new GUILogger();
 
@@ -467,6 +465,12 @@ namespace dotNet_Chat_App.Core
                 case (int)DoActions.MessageType.ClientToClient:
                     param = packet.Value as object[];
 
+                    if (packet.Value.GetType().Equals(typeof(string)))
+                    {
+                        p2pMsg += $"\r\n{packet.Value}";
+                        break;
+                    }
+
                     p2pMsg += $"\r\n{param[2]}";
                     break;
                 case (int)DoActions.MessageType.OfflineSending:
@@ -497,7 +501,7 @@ namespace dotNet_Chat_App.Core
             }
         }
 
-        private async void SendLog()
+        private async Task SendLog()
         {
             if (m_client != null && m_client.Connected && m_myClient != null)
             {

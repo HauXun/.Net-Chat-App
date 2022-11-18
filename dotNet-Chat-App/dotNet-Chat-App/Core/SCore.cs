@@ -57,7 +57,6 @@ namespace dotNet_Chat_App.Core
         private ReceiveBuffer buffer;
         private ListChanged listChanged;
         private ClearListContainer clearListContainer;
-        private ReceiveRequestPacket receiveRequestPacket;
         private int sentBytes;
         private int toSent;
         private bool reLog = true;
@@ -111,7 +110,6 @@ namespace dotNet_Chat_App.Core
 
         public ListChanged ListChanged { get => this.listChanged; set => listChanged = value; }
         public ClearListContainer ClearListContainer { get => this.clearListContainer; set => clearListContainer = value; }
-        public ReceiveRequestPacket ReceiveRequestPacket { get => receiveRequestPacket; set => receiveRequestPacket = value; }
 
         private static ILogger logger = new GUILogger();
         private CancellationTokenSource ts;
@@ -536,9 +534,7 @@ namespace dotNet_Chat_App.Core
                             x.M_Client = socket;
                             ClientBLL.Instance.SaveStatus(x.ID, Convert.ToInt32(x.Online));
 
-                            PushMessage(x);
-
-                            break;
+                            //AsynchronousServices.setTimeout(() => PushMessage(x), TimeSpan.FromMilliseconds(0.5));
                         }
                     }
 
@@ -602,8 +598,7 @@ namespace dotNet_Chat_App.Core
                     {
                         if (x.ID == Convert.ToInt32(param[1]))
                         {
-                            if (!reLog)
-                                MessageBLL.Instance.SaveMessage(packet, Convert.ToInt32(x.Online), Convert.ToInt32(param[1]), Convert.ToInt32(param[0]));
+                            MessageBLL.Instance.SaveMessage(packet, Convert.ToInt32(x.Online), Convert.ToInt32(param[1]), Convert.ToInt32(param[0]));
 
                             if (x.M_Client != null && x.M_Client.Connected)
                             {
@@ -778,12 +773,14 @@ namespace dotNet_Chat_App.Core
 
             foreach (Message message in messages)
             {
-                if (clientSent == message.ClientSent && message.ClientReceiver == clientRec)
+                if ((clientSent == message.ClientSent && message.ClientReceiver == clientRec) ||
+                    (clientRec == message.ClientSent && message.ClientReceiver == clientSent))
                 {
                     foreach (Client client in m_clients)
                     {
-                        if (client.ID == clientRec && client != null && client.M_Client != null && client.M_Client.Connected)
+                        if (client != null && client.M_Client != null && client.M_Client.Connected && client.ID == clientSent)
                         {
+                            await Task.Delay(TimeSpan.FromMilliseconds(0.5));
                             await SendPacket(message.DetailMessage, client.M_Client);
 
                             if (!message.Sent)

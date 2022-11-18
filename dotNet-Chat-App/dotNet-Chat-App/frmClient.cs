@@ -29,21 +29,13 @@ namespace dotNet_Chat_App
         private Client client;
         private AddToGroup toGroup;
         private List<int> cloneID;
-        private object receivePacketData;
         private frmChatDialog chatDialog;
-        private Message messageToCahe;
         private List<Message> listCacheMessage;
-
-        private CancellationTokenSource ts;
-        private CancellationToken token;
 
         public frmClient(Client client)
         {
             InitializeComponent();
             this.client = client;
-
-            ts = new CancellationTokenSource();
-            token = ts.Token;
         }
 
         private void Init()
@@ -52,7 +44,6 @@ namespace dotNet_Chat_App
             {
                 ListChanged = LoadList,
                 ClearListContainer = ClearListContainer,
-                ReceiveRequestPacket = ReceiveRequestPacket
             };
 
             m_cCore.MyClient = this.client;
@@ -161,14 +152,12 @@ namespace dotNet_Chat_App
                 if (listCacheMessage == null)
                     listCacheMessage = new List<Message>();
 
-                Message messageToCahe = new Message()
+                listCacheMessage.Add(new Message()
                 {
                     DetailMessage = FragmentationServices.Serialize(message),
                     ClientSent = m_cCore.MyClient.ID,
                     MessageType = (int)DoActions.MessageType.ClientToServer
-                };
-
-                listCacheMessage.Add(messageToCahe);
+                });
                 JsonServices.JSONEncode(listCacheMessage);
             }
         }
@@ -284,11 +273,6 @@ namespace dotNet_Chat_App
                 };
                 chatDialog.Show();
             }
-        }
-
-        private void ReceiveRequestPacket(object data)
-        {
-            receivePacketData = data;
         }
 
         private void btnAddGroup_Click(object sender, EventArgs e)

@@ -11,6 +11,5 @@ namespace dotNet_Chat_App.IProps
 	{
 		ListChanged ListChanged { get; set; }
 		ClearListContainer ClearListContainer { get; set; }
-        ReceiveRequestPacket ReceiveRequestPacket { get; set; }
     }
 }
