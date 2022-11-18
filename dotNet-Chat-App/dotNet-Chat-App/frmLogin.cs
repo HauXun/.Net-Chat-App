@@ -1,7 +1,5 @@
 ﻿using dotNet_Chat_App.Model.BusinessLogicLayer;
 using System;
-using System.Net;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace dotNet_Chat_App
@@ -17,29 +15,25 @@ namespace dotNet_Chat_App
         public frmLogin()
         {
             InitializeComponent();
-
-            // Internet connection checking
-            // System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
 		}
 
         private void btnClient_Click(object sender, EventArgs e)
         {
-            //Id = txbUserName.Text;
-            //passWord = txbPass.Text;
-            //Client client = IsLogin(Id, passWord);
+            Id = txbUserName.Text;
+            passWord = txbPass.Text;
+            Client client = IsLogin(Id, passWord);
 
-            //if (client != null && client.ID > 0 && client.ID != SERVER_ID)
-            //{
-            //    frm_client = new frmClient(client);
-            //    frm_client.FormClosed += Client_FormClosed;
-            //    this?.Hide();
-            //    frm_client?.Show();
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
-            //}
-            new frmClient(new Client() { ID = Convert.ToInt32(txbUserName.Text), Name = "", Online = false }).Show();
+            if (client != null && client.ID > 0 && client.ID != SERVER_ID)
+            {
+                frm_client = new frmClient(client);
+                frm_client.FormClosed += Client_FormClosed;
+                this?.Hide();
+                frm_client?.Show();
+            }
+            else
+            {
+                MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
+            }
         }
 
         private void Client_FormClosed(object sender, FormClosedEventArgs e)
@@ -49,22 +43,21 @@ namespace dotNet_Chat_App
 
         private void btnServer_Click(object sender, EventArgs e)
         {
-            //Id = txbUserName.Text;
-            //passWord = txbPass.Text;
-            //Client client = IsLogin(Id, passWord);
+            Id = txbUserName.Text;
+            passWord = txbPass.Text;
+            Client client = IsLogin(Id, passWord);
 
-            //if (client != null && client.ID > 0 && client.ID == SERVER_ID)
-            //{
-            //    frm_server = new frmServer();
-            //    frm_server.FormClosed += Server_FormClosed;
-            //    this?.Hide();
-            //    frm_server?.Show();
-            //}
-            //else
-            //{
-            //    MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
-            //}
-            new frmServer().Show();
+            if (client != null && client.ID > 0 && client.ID == SERVER_ID)
+            {
+                frm_server = new frmServer();
+                frm_server.FormClosed += Server_FormClosed;
+                this?.Hide();
+                frm_server?.Show();
+            }
+            else
+            {
+                MessageBox.Show("Tài khoản hoặc mật khẩu không chính xác!");
+            }
         }
 
 		private void Server_FormClosed(object sender, FormClosedEventArgs e)

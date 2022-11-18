@@ -51,7 +51,6 @@ namespace dotNet_Chat_App.Core
         private ReceiveBuffer buffer;
         private ListChanged listChanged;
         private ClearListContainer clearListContainer;
-        private ReceiveRequestPacket receiveRequestPacket;
         private int sentBytes;
         private int toSent;
 
@@ -101,7 +100,6 @@ namespace dotNet_Chat_App.Core
 
         public ListChanged ListChanged { get => this.listChanged; set => listChanged = value; }
         public ClearListContainer ClearListContainer { get => this.clearListContainer; set => clearListContainer = value; }
-        public ReceiveRequestPacket ReceiveRequestPacket { get => this.receiveRequestPacket; set => receiveRequestPacket = value; }
 
         private static ILogger logger = new GUILogger();
 
@@ -179,9 +177,9 @@ namespace dotNet_Chat_App.Core
         /// <param name="data">Data will be send</param>
         /// <returns>The byte number have been sent</returns>
         public async Task<TAPResultPattern<int>> SendPacketAsync(byte[] data, Socket socket)
-		{
-			var sendSizeResult = await socket.SendWithTimeoutAsyncz(
-				BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
+        {
+            var sendSizeResult = await socket.SendWithTimeoutAsyncz(
+                BitConverter.GetBytes(data.Length), 0, 4, 0, SendTimeoutMs).ConfigureAwait(false);
 
             var bytesReceived = sendSizeResult.Value;
 
@@ -204,9 +202,9 @@ namespace dotNet_Chat_App.Core
                 sentBytes = 0;
                 toSent = 1024;
                 while ((data.Length - sentBytes) > 0)
-				{
-					sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
-					bytesReceived = sendResult.Value;
+                {
+                    sendResult = await socket.SendWithTimeoutAsyncz(data, sentBytes, toSent, 0, SendTimeoutMs).ConfigureAwait(false);
+                    bytesReceived = sendResult.Value;
 
                     if (sendResult.Failure)
                     {
@@ -224,9 +222,9 @@ namespace dotNet_Chat_App.Core
                 }
             }
             else
-			{
-				sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
-				bytesReceived = sendResult.Value;
+            {
+                sendResult = await socket.SendWithTimeoutAsyncz(data, 0, data.Length, 0, SendTimeoutMs).ConfigureAwait(false);
+                bytesReceived = sendResult.Value;
 
                 if (sendResult.Failure)
                 {
@@ -259,10 +257,10 @@ namespace dotNet_Chat_App.Core
 
             m_client = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
 
-			// With another socket, connect to the bound socket and await the result (ClientConnectTask)
-			connectResult = await m_client.ConnectWithTimeoutAsyncz(ipAddress.ToString(), m_port, ConnectTimeoutMs).ConfigureAwait(false);
+            // With another socket, connect to the bound socket and await the result (ClientConnectTask)
+            connectResult = await m_client.ConnectWithTimeoutAsyncz(ipAddress.ToString(), m_port, ConnectTimeoutMs).ConfigureAwait(false);
 
-			if (connectResult.Failure)
+            if (connectResult.Failure)
             {
                 //m_systemMsg += $"\r\n{connectResult.Error}";
                 //m_systemMsg += $"\r\nThere was an error connecting to the server/accepting connection from the client";
@@ -440,7 +438,7 @@ namespace dotNet_Chat_App.Core
                     }
                     break;
                 case (int)DoActions.Todo.PushMessage:
-					break;
+                    break;
                 case (int)DoActions.Todo.PushOfflineMessage:
                     break;
                 case (int)DoActions.Todo.PushOfflineGroupMessage:
@@ -455,15 +453,25 @@ namespace dotNet_Chat_App.Core
                     });
                     break;
                 case (int)DoActions.MessageType.ServerSendAll:
-                    m_userMsg += $"\r\nEndpoint: {packet.Value}";
+                    m_userMsg += $"\r\n{packet.Value}";
                     break;
                 case (int)DoActions.MessageType.ServerToSingleClient:
-                    m_userMsg += $"\r\nEndpoint: {packet.Value}";
+                    param = packet.Value as object[];
+
+                    m_userMsg += $"\r\n{param[2]}";
                     break;
                 case (int)DoActions.MessageType.ClientToServer:
                     break;
                 case (int)DoActions.MessageType.ClientToClient:
-                    p2pMsg += $"\r\n{packet.Value}";
+                    param = packet.Value as object[];
+
+                    if (packet.Value.GetType().Equals(typeof(string)))
+                    {
+                        p2pMsg += $"\r\n{packet.Value}";
+                        break;
+                    }
+
+                    p2pMsg += $"\r\n{param[2]}";
                     break;
                 case (int)DoActions.MessageType.OfflineSending:
                     break;
@@ -480,27 +488,20 @@ namespace dotNet_Chat_App.Core
         /// <param name="packet">Packet will be send</param>
         public async Task SendPacket(byte[] packet, Socket socket)
         {
-            try
+            if (socket != null && socket.Connected)
             {
-                if (socket != null && socket.Connected)
-                {
-                    handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
-                    handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
+                handleSendTask = Task.Run(() => SendPacketAsync(packet, socket));
+                handleSendTaskResult = await handleSendTask.ConfigureAwait(false);
 
-                    if (handleSendTaskResult.Failure)
-                    {
-                        logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
-                        return;
-                    }
+                if (handleSendTaskResult.Failure)
+                {
+                    logger.WriteLogEntry(handleSendTaskResult.Error, ref m_systemMsg);
+                    return;
                 }
-            }
-            finally
-            {
-                // SendOffMessageToDatabase
             }
         }
 
-        private async void SendLog()
+        private async Task SendLog()
         {
             if (m_client != null && m_client.Connected && m_myClient != null)
             {
